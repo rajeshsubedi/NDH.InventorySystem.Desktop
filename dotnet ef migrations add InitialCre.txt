@@ -1,0 +1,5 @@
+dotnet ef migrations add InitialCreate --project InventoryAppDataAccessLayer
+dotnet ef database update --project InventoryAppDataAccessLayer
+
+
+ 
