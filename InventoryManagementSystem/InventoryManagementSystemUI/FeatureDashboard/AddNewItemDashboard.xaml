@@ -22,14 +22,28 @@
         <Border Grid.Column="0" Margin="0,0,20,0" Background="#FFFFFF" Padding="10" CornerRadius="10" BorderBrush="#E0E0E0" BorderThickness="1">
             <StackPanel>
                 <TextBlock Text="Categories" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                <DockPanel Margin="0,0,0,10" VerticalAlignment="Center">
-                    <xctk:WatermarkTextBox x:Name="CategorySearchBox" Width="220" Height="30" Watermark="Search categories here" TextChanged="CategorySearchBox_TextChanged" Padding="10,5"/>
-                    <Button Content="❌" Width="30" Height="30" Background="Transparent" BorderThickness="0" Cursor="Hand" Click="ClearSearch_Click"
-                            Visibility="{Binding Text.Length, ElementName=CategorySearchBox, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-                </DockPanel>
-                <TreeView x:Name="CategoryTreeView" ItemsSource="{Binding FilteredCategories}" SelectedItemChanged="CategoryTreeView_SelectedItemChanged"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" Height="400">
+                <Grid Margin="0,0,0,10">
+                    <xctk:WatermarkTextBox x:Name="CategorySearchBox" 
+                                   Width="238" 
+                                   Height="35" 
+                                   Watermark="Search categories here" 
+                                   TextChanged="CategorySearchBox_TextChanged" 
+                                   Padding="10,5" />
+                    <Button Content="❌" 
+                    Width="24" 
+                    Height="20" 
+                    Background="Transparent" 
+                    BorderThickness="0" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Center" 
+                    Margin="0,0,10,0" 
+                    Cursor="Hand" 
+                    Click="ClearSearch_Click"/>
+                </Grid>
+                <TreeView x:Name="CategoryTreeView" ItemsSource="{Binding FilteredCategories}" 
+                  SelectedItemChanged="CategoryTreeView_SelectedItemChanged"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                  ScrollViewer.CanContentScroll="True" Height="400">
                     <TreeView.Resources>
                         <Style TargetType="TreeViewItem">
                             <Setter Property="Background" Value="Transparent"/>

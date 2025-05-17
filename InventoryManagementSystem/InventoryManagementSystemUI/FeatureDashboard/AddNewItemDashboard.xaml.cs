@@ -175,11 +175,15 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             CategoryTreeView.ItemsSource = filtered;
         }
 
+        //private void ClearSearch_Click(object sender, RoutedEventArgs e)
+        //{
+        //    CategorySearchBox.Text = string.Empty;
+        //    CategoryTreeView.ItemsSource = FilteredCategories;
+        //}
+
         private void ClearSearch_Click(object sender, RoutedEventArgs e)
         {
             CategorySearchBox.Text = string.Empty;
-            CategoryTreeView.ItemsSource = FilteredCategories;
         }
-
     }
 }
