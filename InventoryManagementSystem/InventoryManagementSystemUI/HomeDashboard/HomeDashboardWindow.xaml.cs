@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using InventoryAppServicesLayer.ServiceInterfaces;
+using InventoryManagementSystemUI.FeatureDashboard;
 
 
 namespace InventoryManagementSystemUI.HomeDashboard
@@ -48,7 +49,7 @@ namespace InventoryManagementSystemUI.HomeDashboard
                     switch (feature.FeatureTitle)
                     {
                         case "Add New Item":
-                            //FeatureDetailsContent.Content = new AddNewItemDashboard();
+                            FeatureDetailsContent.Content = new AddNewItemDashboard();
                             break;
                         default:
                             FeatureDetailsContent.Content = new TextBlock
