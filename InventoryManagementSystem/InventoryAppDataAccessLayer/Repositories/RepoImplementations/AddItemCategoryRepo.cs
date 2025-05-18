@@ -33,6 +33,17 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             await _rmsServicedb.SaveChangesAsync();
         }
 
+        // Repository Method for Getting Category by Name and Level
+        // Repository Method for Getting Category by Name and Level
+        public async Task<Category> GetCategoryByNameAndLevelAsync(string name, int level)
+        {
+            return await _rmsServicedb.Categories
+                .Where(c => EF.Functions.Collate(c.Name, "SQL_Latin1_General_CP1_CI_AS") == name && c.Level == level)
+                .FirstOrDefaultAsync();
+        }
+
+
+
         // Add SubCategory Method
         public async Task AddSubCategoryAsync(int parentCategoryId, string subCategoryName)
         {
@@ -73,6 +84,20 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             return await _rmsServicedb.Categories
                 .Include(c => c.SubCategories)
                 .ToListAsync();
+        }
+
+
+
+        public async Task UpdateCategoryAsync(Category category)
+        {
+            _rmsServicedb.Categories.Update(category);
+            await _rmsServicedb.SaveChangesAsync();
+        }
+
+        public async Task DeleteCategoryAsync(Category category)
+        {
+            _rmsServicedb.Categories.Remove(category);
+            await _rmsServicedb.SaveChangesAsync();
         }
     }
 }

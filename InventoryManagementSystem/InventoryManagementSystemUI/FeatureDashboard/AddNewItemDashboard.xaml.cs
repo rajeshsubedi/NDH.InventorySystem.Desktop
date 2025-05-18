@@ -19,6 +19,16 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private readonly IAddItemCategoryService _categoryService;
         private StackPanel _previousActionIcons = null;
+        private Category _selectedCategory;
+        public Category SelectedCategory
+        {
+            get => _selectedCategory;
+            set
+            {
+                _selectedCategory = value;
+                SelectedCategoryTextBlock.Text = _selectedCategory?.DisplayName ?? string.Empty;
+            }
+        }
 
         public AddNewItemDashboard()
         {
@@ -60,26 +70,59 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private async void AddParentCategory_Click(object sender, RoutedEventArgs e)
         {
-            var name = PromptForName("Enter parent category name:");
-            if (!string.IsNullOrEmpty(name))
+            try
             {
-                await _categoryService.AddParentCategoryAsync(name);
-                await LoadCategoriesAsync();
+                var name = PromptForName("Enter parent category name:");
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    await _categoryService.AddParentCategoryAsync(name);
+                    await LoadCategoriesAsync();
+                    MessageBox.Show("Parent category added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+            {
+                MessageBox.Show("A parent category with this name already exists. Please choose a different name.",
+                                "Duplicate Category", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+
         private async void AddSubCategory_Click(object sender, RoutedEventArgs e)
         {
-            if (CategoryTreeView.SelectedItem is Category selectedCategory)
+            try
             {
-                var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayName}':");
-                if (!string.IsNullOrWhiteSpace(subCategoryName))
+                if (CategoryTreeView.SelectedItem is Category selectedCategory)
                 {
-                    await _categoryService.AddSubCategoryAsync(selectedCategory.CategoryId, subCategoryName);
-                    await LoadCategoriesAsync();
+                    var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayName}':");
+                    if (!string.IsNullOrWhiteSpace(subCategoryName))
+                    {
+                        await _categoryService.AddSubCategoryAsync(selectedCategory.CategoryId, subCategoryName);
+                        await LoadCategoriesAsync();
+                        MessageBox.Show("Subcategory added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please select a parent category before adding a subcategory.",
+                                    "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+            {
+                MessageBox.Show("A subcategory with this name already exists under the selected category. Please choose a different name.",
+                                "Duplicate Subcategory", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
 
         private async void EditCategory_Click(object sender, RoutedEventArgs e)
         {
@@ -88,21 +131,60 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 var newName = PromptForName($"Enter new name for '{selectedCategory.DisplayName}':");
                 if (!string.IsNullOrWhiteSpace(newName))
                 {
-                    //await _categoryService.EditCategoryAsync(selectedCategory.CategoryId, newName);
-                    await LoadCategoriesAsync();
+                    try
+                    {
+                        await _categoryService.EditCategoryAsync(selectedCategory.CategoryId, newName);
+                        await LoadCategoriesAsync();
+
+                        // Refresh the right panel with the updated category
+                        SelectedCategory = FilteredCategories.FirstOrDefault(c => c.CategoryId == selectedCategory.CategoryId);
+                        if (SelectedCategory != null)
+                        {
+                            SelectedCategoryTextBlock.Text = SelectedCategory.DisplayName;
+                        }
+                        else
+                        {
+                            SelectedCategoryTextBlock.Text = string.Empty;
+                        }
+
+                        MessageBox.Show("Category updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error: {ex.Message}", "Edit Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
+
 
         private async void DeleteCategory_Click(object sender, RoutedEventArgs e)
         {
             if (CategoryTreeView.SelectedItem is Category selectedCategory)
             {
-                var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayName}'?", "Delete Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayName}'?",
+                                              "Delete Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
-                    //await _categoryService.DeleteCategoryAsync(selectedCategory.CategoryId);
-                    await LoadCategoriesAsync();
+                    try
+                    {
+                        await _categoryService.DeleteCategoryAsync(selectedCategory.CategoryId);
+                        await LoadCategoriesAsync();
+
+                        // Clear the selected category
+                        SelectedCategory = null;
+                        SelectedCategoryTextBlock.Text = string.Empty;
+
+                        // Manually refresh TreeView
+                        CategoryTreeView.ItemsSource = null;
+                        CategoryTreeView.ItemsSource = FilteredCategories;
+
+                        MessageBox.Show("Category deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error: {ex.Message}", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
@@ -114,10 +196,9 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private void CategoryTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (CategoryTreeView.SelectedItem is TreeViewItem selectedItem)
+            if (CategoryTreeView.SelectedItem is Category selectedCategory)
             {
-                selectedItem.Background = Brushes.LightBlue;
-                selectedItem.Foreground = Brushes.White;
+                SelectedCategory = selectedCategory;
             }
         }
 
@@ -185,5 +266,11 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             CategorySearchBox.Text = string.Empty;
         }
+
+        private void AddItemImage_Click(object sender, RoutedEventArgs e)
+        {
+            //CategorySearchBox.Text = string.Empty;
+        }
+      
     }
-}
+    }
