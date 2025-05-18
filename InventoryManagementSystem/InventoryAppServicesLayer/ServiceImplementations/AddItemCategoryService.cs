@@ -65,7 +65,7 @@ namespace InventoryAppServicesLayer.ServiceImplementations
                 Name = name,
                 Abbreviation = GenerateAbbreviation(name),
                 Level = parent.Level + 1,
-                ParentCategoryId = parent.CategoryId,
+                ParentCategoryId = parent.CategoryId, // Set ParentCategoryId correctly
                 CreatedAt = DateTime.UtcNow
             };
 

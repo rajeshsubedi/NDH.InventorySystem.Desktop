@@ -43,9 +43,14 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             var allCategories = await _categoryService.GetAllCategoriesAsync();
             _categories.Clear();
-            foreach (var category in allCategories)
+
+            // Only load Parent Categories (Level 1 - PCG)
+            var parentCategories = allCategories.Where(c => c.Level == 1).ToList();
+
+            foreach (var parent in parentCategories)
             {
-                _categories.Add(category);
+                // Only add the parent categories (PCG)
+                _categories.Add(parent);
             }
         }
 
@@ -204,37 +209,146 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private void AddItem_Click(object sender, RoutedEventArgs e)
         {
-            string itemName = ItemNameTextBox.Text.Trim();
-            string itemDescription = ItemDescriptionTextBox.Text.Trim();
-            string quantityText = QuantityTextBox.Text.Trim();
-            string priceText = PriceTextBox.Text.Trim();
-
-            if (string.IsNullOrEmpty(itemName) || string.IsNullOrEmpty(quantityText) || string.IsNullOrEmpty(priceText))
+            try
             {
-                MessageBox.Show("Please fill in all required fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+                // Basic Details
+                string itemName = ItemNameTextBox?.Text?.Trim() ?? "";
+                string category = SelectedCategoryTextBlock?.Text?.Trim() ?? "";
+                bool isProduct = (FindName("ItemType_Product") as RadioButton)?.IsChecked == true;
+                bool isService = (FindName("ItemType_Service") as RadioButton)?.IsChecked == true;
 
-            if (!int.TryParse(quantityText, out int quantity) || quantity <= 0)
+                // Stock Details
+                string openingStockText = OpeningStockTextBox?.Text?.Trim() ?? "";
+                string unit = UnitComboBox?.Text ?? "";
+                string salesPriceText = SalesPriceTextBox?.Text?.Trim() ?? "";
+                string purchasePriceText = PurchasePriceTextBox?.Text?.Trim() ?? "";
+                bool lowStockAlert = LowStockAlertToggle?.IsChecked == true;
+
+                // Additional Details
+                string itemCode = ItemCodeTextBox?.Text?.Trim() ?? "";
+                string hsCode = HSCodeTextBox?.Text?.Trim() ?? "";
+                string description = DescriptionTextBox?.Text?.Trim() ?? "";
+
+                // Purchase Stock
+                string purchaseQuantityText = PurchaseQuantityTextBox?.Text?.Trim() ?? "";
+                string supplier = SupplierTextBox?.Text?.Trim() ?? "";
+                DateTime? purchaseDate = PurchaseDatePicker?.SelectedDate;
+
+                // Basic Validation
+                if (string.IsNullOrEmpty(itemName))
+                {
+                    MessageBox.Show("Please enter an item name.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(category))
+                {
+                    MessageBox.Show("Please select a category.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!isProduct && !isService)
+                {
+                    MessageBox.Show("Please select an item type (Product or Service).", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Stock Details Validation (Optional for Service)
+                if (isProduct)
+                {
+                    if (string.IsNullOrEmpty(openingStockText) || !int.TryParse(openingStockText, out int openingStock) || openingStock < 0)
+                    {
+                        MessageBox.Show("Please enter a valid opening stock (positive number).", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    if (string.IsNullOrEmpty(unit))
+                    {
+                        MessageBox.Show("Please select a unit for stock.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    if (!string.IsNullOrEmpty(salesPriceText) && !decimal.TryParse(salesPriceText, out decimal salesPrice))
+                    {
+                        MessageBox.Show("Sales Price must be a valid number.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    if (!string.IsNullOrEmpty(purchasePriceText) && !decimal.TryParse(purchasePriceText, out decimal purchasePrice))
+                    {
+                        MessageBox.Show("Purchase Price must be a valid number.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    // Purchase Stock Validation
+                    if (!string.IsNullOrEmpty(purchaseQuantityText) && !int.TryParse(purchaseQuantityText, out int purchaseQuantity))
+                    {
+                        MessageBox.Show("Purchase Quantity must be a valid number.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+
+                // Display Success Message
+                MessageBox.Show($"Item '{itemName}' added successfully!\nCategory: {category}\nType: {(isProduct ? "Product" : "Service")}",
+                                "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Clear Form Fields
+                ItemNameTextBox.Text = "";
+                SelectedCategoryTextBlock.Text = "";
+                OpeningStockTextBox.Text = "";
+                UnitComboBox.SelectedIndex = 0;
+                SalesPriceTextBox.Text = "";
+                PurchasePriceTextBox.Text = "";
+                ItemCodeTextBox.Text = "";
+                HSCodeTextBox.Text = "";
+                DescriptionTextBox.Text = "";
+                LowStockAlertToggle.IsChecked = false;
+                PurchaseQuantityTextBox.Text = "";
+                SupplierTextBox.Text = "";
+                PurchaseDatePicker.SelectedDate = null;
+            }
+            catch (Exception ex)
             {
-                MessageBox.Show("Quantity must be a positive number.", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            if (!decimal.TryParse(priceText, out decimal price) || price < 0)
-            {
-                MessageBox.Show("Price must be a valid non-negative number.", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            MessageBox.Show($"Item '{itemName}' added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            // Clear form
-            ItemNameTextBox.Text = "";
-            ItemDescriptionTextBox.Text = "";
-            QuantityTextBox.Text = "";
-            PriceTextBox.Text = "";
         }
+
+        private void AddPurchase_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string purchaseQuantityText = PurchaseQuantityTextBox?.Text?.Trim() ?? "";
+                string supplier = SupplierTextBox?.Text?.Trim() ?? "";
+                DateTime? purchaseDate = PurchaseDatePicker?.SelectedDate;
+
+                // Validate Purchase Inputs
+                if (string.IsNullOrEmpty(purchaseQuantityText) || !int.TryParse(purchaseQuantityText, out int purchaseQuantity) || purchaseQuantity <= 0)
+                {
+                    MessageBox.Show("Please enter a valid purchase quantity.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (purchaseDate == null)
+                {
+                    MessageBox.Show("Please select a purchase date.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Display Purchase Success Message
+                MessageBox.Show($"Purchase Added:\nQuantity: {purchaseQuantity}\nSupplier: {supplier}\nDate: {purchaseDate?.ToShortDateString()}",
+                                "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Clear Purchase Fields
+                PurchaseQuantityTextBox.Text = "";
+                SupplierTextBox.Text = "";
+                PurchaseDatePicker.SelectedDate = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         private void CategorySearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -255,12 +369,6 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
             CategoryTreeView.ItemsSource = filtered;
         }
-
-        //private void ClearSearch_Click(object sender, RoutedEventArgs e)
-        //{
-        //    CategorySearchBox.Text = string.Empty;
-        //    CategoryTreeView.ItemsSource = FilteredCategories;
-        //}
 
         private void ClearSearch_Click(object sender, RoutedEventArgs e)
         {
