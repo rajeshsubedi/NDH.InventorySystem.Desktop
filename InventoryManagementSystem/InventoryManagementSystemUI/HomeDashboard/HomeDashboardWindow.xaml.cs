@@ -51,6 +51,12 @@ namespace InventoryManagementSystemUI.HomeDashboard
                         case "Add New Item":
                             FeatureDetailsContent.Content = new AddNewItemDashboard();
                             break;
+                        case "Stock Management":
+                            FeatureDetailsContent.Content = new StockManagement();
+                            break;
+                        case "Dashboard":
+                            FeatureDetailsContent.Content = new Dashboard();
+                            break;
                         default:
                             FeatureDetailsContent.Content = new TextBlock
                             {
