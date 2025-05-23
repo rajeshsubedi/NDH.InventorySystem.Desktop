@@ -38,9 +38,12 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             _categoryService = App.ServiceProvider.GetRequiredService<IAddItemCategoryService>();
             _stockService = App.ServiceProvider.GetRequiredService<IStockManagementService>();
             this.DataContext = this;
-
-            _ = LoadCategoriesAsync();
-            _ = LoadUnitsAndSuppliersAsync();
+            Loaded += StockManagement_Loaded;
+        }
+        private async void StockManagement_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadCategoriesAsync();              // ✅ Runs first
+            await LoadUnitsAndSuppliersAsync();       // ✅ Runs only after first completes
         }
 
         private async Task LoadCategoriesAsync()
@@ -62,16 +65,19 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             try
             {
+                // Load Primary Units
                 var primary = await _stockService.GetUnitsByTypeAsync("Primary");
                 PrimaryUnits.Clear();
                 foreach (var unit in primary)
                     PrimaryUnits.Add(unit);
 
+                // Load Secondary Units (only AFTER primary units are done)
                 var secondary = await _stockService.GetUnitsByTypeAsync("Secondary");
                 SecondaryUnits.Clear();
                 foreach (var unit in secondary)
                     SecondaryUnits.Add(unit);
 
+                // Load Suppliers (only AFTER secondary units are done)
                 var suppliers = await _stockService.GetAllAsync();
                 Suppliers.Clear();
                 foreach (var supplier in suppliers)
@@ -332,6 +338,17 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             if (!string.IsNullOrWhiteSpace(unitName))
             {
                 await _stockService.AddUnitAsync(unitName.Trim(), "Primary");
+                await LoadUnitsAndSuppliersAsync();
+                MessageBox.Show("Unit added successfully!");
+            }
+        }
+
+        private async void AddSecondaryUnit_Click(object sender, RoutedEventArgs e)
+        {
+            string unitName = Microsoft.VisualBasic.Interaction.InputBox("Enter new primary unit:", "Add Unit");
+            if (!string.IsNullOrWhiteSpace(unitName))
+            {
+                await _stockService.AddUnitAsync(unitName.Trim(), "Secondary");
                 await LoadUnitsAndSuppliersAsync();
                 MessageBox.Show("Unit added successfully!");
             }
