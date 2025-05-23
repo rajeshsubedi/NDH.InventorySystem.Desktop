@@ -24,14 +24,14 @@
                 <TextBlock Text="Categories" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
                 <!-- Add New Parent Category Button (NEW) -->
-                <Button x:Name="AddParentCategoryButton" 
+                <!--<Button x:Name="AddParentCategoryButton" 
                 Content="➕ Add New Parent Category" 
                 Background="#10B981" 
                 Foreground="White" 
                 FontWeight="Bold" 
                 Padding="10" 
                 Margin="0,0,0,10" 
-                Click="AddParentCategory_Click"/>
+                Click="AddParentCategory_Click"/>-->
 
                 <Grid Margin="0,0,0,10">
                     <xctk:WatermarkTextBox x:Name="CategorySearchBox" 

@@ -7,6 +7,12 @@
              mc:Ignorable="d"
              d:DesignHeight="500" d:DesignWidth="800">
 
+    <UserControl.Resources>
+        <DataTemplate x:Key="UnitTemplate">
+            <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+    </UserControl.Resources>
+    
     <Grid Background="#F4F4F9">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="280"/>
@@ -117,11 +123,15 @@
                             <xctk:WatermarkTextBox x:Name="PurchaseQuantityTextBox" Watermark="Enter Quantity" Height="40" Margin="0,0,0,15"/>
 
                             <TextBlock Text="Primary Unit" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,5"/>
-                            <ComboBox x:Name="PrimaryUnitComboBox" Height="40" Margin="0,0,0,15">
-                                <ComboBoxItem Content="Box"/>
-                                <ComboBoxItem Content="Carton"/>
-                                <ComboBoxItem Content="Kg"/>
-                            </ComboBox>
+                            
+                            <ComboBox x:Name="PrimaryUnitComboBox"
+                                          ItemsSource="{Binding PrimaryUnits}"
+                                          DisplayMemberPath="Name"
+                                          SelectedValuePath="Name"
+                                          SelectedValue="{Binding SelectedPrimaryUnit, Mode=TwoWay}"
+                                          Height="40" Margin="0,0,0,15"/>
+                         
+
 
                             <TextBlock Text="Conversion Rate (Primary to Secondary)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,5"/>
                             <xctk:WatermarkTextBox x:Name="ConversionRateTextBox" Watermark="e.g. 24" Height="40" Margin="0,0,0,15"/>
@@ -130,11 +140,12 @@
                         <!-- Right Column -->
                         <StackPanel Grid.Column="1" Margin="10">
                             <TextBlock Text="Secondary Unit" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,5"/>
-                            <ComboBox x:Name="SecondaryUnitComboBox" Height="40" Margin="0,0,0,15">
-                                <ComboBoxItem Content="Bottle"/>
-                                <ComboBoxItem Content="Piece"/>
-                                <ComboBoxItem Content="Packet"/>
-                            </ComboBox>
+                                  <ComboBox x:Name="SecondaryUnitComboBox"
+                                  ItemsSource="{Binding SecondaryUnits}"
+                                  DisplayMemberPath="Name"
+                                  SelectedValuePath="Name"
+                                  SelectedValue="{Binding SelectedSecondaryUnit, Mode=TwoWay}"
+                                  Height="40" Margin="0,0,0,15"/>
 
                             <TextBlock Text="Purchase Price" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,5"/>
                             <xctk:WatermarkTextBox x:Name="PurchasePriceTextBox" Watermark="Enter Purchase Price" Height="40" Margin="0,0,0,15"/>
@@ -143,7 +154,13 @@
                             <DatePicker x:Name="PurchaseDatePicker" Height="40" Margin="0,0,0,15"/>
 
                             <TextBlock Text="Supplier" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,5"/>
-                            <xctk:WatermarkTextBox x:Name="SupplierTextBox" Watermark="Enter Supplier Name" Height="40" Margin="0,0,0,15"/>
+                            <ComboBox x:Name="SupplierComboBox"
+                                              ItemsSource="{Binding Suppliers}"
+                                              DisplayMemberPath="Name"
+                                              SelectedValuePath="Name"
+                                              SelectedValue="{Binding SelectedSupplier, Mode=TwoWay}"
+                                              Height="40" Margin="0,0,0,15"/>
+
                         </StackPanel>
                     </Grid>
 

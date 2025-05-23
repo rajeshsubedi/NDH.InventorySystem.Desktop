@@ -12,10 +12,17 @@ namespace InventoryManagementSystemUI.FeatureDashboard
     {
         private readonly ObservableCollection<Category> _categories = new();
         public ObservableCollection<Category> FilteredCategories => _categories;
+        public ObservableCollection<UnitDetail> PrimaryUnits { get; set; } = new();
+        public ObservableCollection<UnitDetail> SecondaryUnits { get; set; } = new();
+        public ObservableCollection<Supplier> Suppliers { get; set; } = new();
 
         private readonly IAddItemCategoryService _categoryService;
+        private readonly IStockManagementService     _stockService;
         private StackPanel _previousActionIcons = null;
         private Category _selectedCategory;
+        public string SelectedPrimaryUnit { get; set; }
+        public string SelectedSecondaryUnit { get; set; }
+        public string SelectedSupplier { get; set; }
         public Category SelectedCategory
         {
             get => _selectedCategory;
@@ -29,9 +36,11 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             InitializeComponent();
             _categoryService = App.ServiceProvider.GetRequiredService<IAddItemCategoryService>();
+            _stockService = App.ServiceProvider.GetRequiredService<IStockManagementService>();
             this.DataContext = this;
 
             _ = LoadCategoriesAsync();
+            _ = LoadUnitsAndSuppliersAsync();
         }
 
         private async Task LoadCategoriesAsync()
@@ -48,12 +57,39 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 _categories.Add(parent);
             }
         }
-        private void AddPurchase_Click(object sender, RoutedEventArgs e)
+
+        private async Task LoadUnitsAndSuppliersAsync()
+        {
+            try
+            {
+                var primary = await _stockService.GetUnitsByTypeAsync("Primary");
+                PrimaryUnits.Clear();
+                foreach (var unit in primary)
+                    PrimaryUnits.Add(unit);
+
+                var secondary = await _stockService.GetUnitsByTypeAsync("Secondary");
+                SecondaryUnits.Clear();
+                foreach (var unit in secondary)
+                    SecondaryUnits.Add(unit);
+
+                var suppliers = await _stockService.GetAllAsync();
+                Suppliers.Clear();
+                foreach (var supplier in suppliers)
+                    Suppliers.Add(supplier);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading units or suppliers: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private async void AddPurchase_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 string quantityText = PurchaseQuantityTextBox?.Text?.Trim();
-                string supplier = SupplierTextBox?.Text?.Trim();
+                string supplier = SelectedSupplier?.Trim();
                 DateTime? purchaseDate = PurchaseDatePicker?.SelectedDate;
 
                 if (string.IsNullOrWhiteSpace(quantityText) || !int.TryParse(quantityText, out int quantity) || quantity <= 0)
@@ -73,27 +109,38 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                     MessageBox.Show("Please select a purchase date.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
+                var item = new StockItem
+                {
+                    ItemName = ItemNameTextBox.Text?.Trim(),
+                    Category = SelectedCategoryTextBlock.Text?.Trim(),
+                    PurchaseQuantity = quantity,
+                    PrimaryUnit = SelectedPrimaryUnit,
+                    SecondaryUnit = SelectedSecondaryUnit,
+                    ConversionRate = decimal.TryParse(ConversionRateTextBox.Text, out var rate) ? rate : 0,
+                    PurchasePrice = decimal.TryParse(PurchasePriceTextBox.Text, out var price) ? price : 0,
+                    PurchaseDate = purchaseDate.Value,
+                    Supplier = supplier
+                };
 
-                // Placeholder for your service logic, e.g.
-                // await _stockService.AddPurchaseAsync(...);
 
-                MessageBox.Show($"Purchase added successfully!\nQuantity: {quantity}\nSupplier: {supplier}\nDate: {purchaseDate.Value.ToShortDateString()}",
-                                "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                await _stockService.AddPurchaseAsync(item);
 
-                // Optionally reset fields
-                PurchaseQuantityTextBox.Text = "";
-                SupplierTextBox.Text = "";
-                PurchaseDatePicker.SelectedDate = null;
-                PrimaryUnitComboBox.SelectedIndex = 0;
-                SecondaryUnitComboBox.SelectedIndex = 0;
-                ConversionRateTextBox.Text = "";
-                PurchasePriceTextBox.Text = "";
+                MessageBox.Show("Stock purchase added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Reset form
+                PrimaryUnitComboBox.SelectedIndex = -1;
+                SecondaryUnitComboBox.SelectedIndex = -1;
+                SupplierComboBox.SelectedIndex = -1;
+                SelectedPrimaryUnit = null;
+                SelectedSecondaryUnit = null;
+                SelectedSupplier = null;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private void Category_Clicked(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -278,5 +325,36 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             //CategorySearchBox.Text = string.Empty;
         }
+
+        private async void AddPrimaryUnit_Click(object sender, RoutedEventArgs e)
+        {
+            string unitName = Microsoft.VisualBasic.Interaction.InputBox("Enter new primary unit:", "Add Unit");
+            if (!string.IsNullOrWhiteSpace(unitName))
+            {
+                await _stockService.AddUnitAsync(unitName.Trim(), "Primary");
+                await LoadUnitsAndSuppliersAsync();
+                MessageBox.Show("Unit added successfully!");
+            }
+        }
+
+        private async void DeletePrimaryUnit_Click(object sender, RoutedEventArgs e)
+        {
+            string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Unit ID to delete:", "Delete Unit");
+            if (int.TryParse(input, out int id))
+            {
+                var result = MessageBox.Show($"Are you sure you want to delete unit with ID {id}?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    await _stockService.DeleteUnitAsync(id);
+                    await LoadUnitsAndSuppliersAsync();
+                    MessageBox.Show("Unit deleted successfully!");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please enter a valid numeric ID.");
+            }
+        }
+
     }
 }

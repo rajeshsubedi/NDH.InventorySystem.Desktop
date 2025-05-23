@@ -243,11 +243,11 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                     return;
                 }
 
-                if (!isProduct && !isService)
-                {
-                    MessageBox.Show("Please select an item type (Product or Service).", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+                //if (!isProduct && !isService)
+                //{
+                //    MessageBox.Show("Please select an item type (Product or Service).", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //    return;
+                //}
 
                 // Stock Details Validation (Optional for Service)
                 if (isProduct)

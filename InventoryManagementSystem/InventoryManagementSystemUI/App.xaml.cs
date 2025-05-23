@@ -2,6 +2,7 @@
 using System.Data;
 using System.Windows;
 using InventoryManagementSystemUI.HomeDashboard;
+using InventoryManagementSystemUI.Login;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InventoryManagementSystemUI

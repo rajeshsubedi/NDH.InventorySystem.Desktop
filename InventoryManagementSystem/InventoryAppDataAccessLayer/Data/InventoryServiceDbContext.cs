@@ -14,6 +14,12 @@ namespace InventoryAppDataAccessLayer.Data
         public DbSet<UserRegistrationDetails> UserRegistration { get; set; }
         public DbSet<DashboardFeaturePanel> FeaturePanels { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<StockItem> StockItems { get; set; }
+        public DbSet<UnitDetail> UnitDetails { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+
+
+
 
 
         private Guid id;
@@ -76,6 +82,46 @@ namespace InventoryAppDataAccessLayer.Data
                 entity.Property(e => e.FeatureViewKey).IsRequired().HasMaxLength(256).HasColumnType("nvarchar(256)");
             });
 
+            modelBuilder.Entity<StockItem>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.ItemName)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+
+                entity.Property(e => e.Category)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+
+                entity.Property(e => e.PurchaseQuantity)
+                    .IsRequired();
+
+                entity.Property(e => e.PrimaryUnit)
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                entity.Property(e => e.SecondaryUnit)
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                entity.Property(e => e.ConversionRate)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.PurchasePrice)
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.PurchaseDate)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Supplier)
+                    .HasMaxLength(256)
+                    .HasColumnType("nvarchar(256)");
+            });
+
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.ToTable("Categories"); // Table name
@@ -118,6 +164,66 @@ namespace InventoryAppDataAccessLayer.Data
                       .HasConstraintName("FK_Categories_Parent"); // Foreign key constraint name
             });
 
+
+            modelBuilder.Entity<UnitDetail>(entity =>
+            {
+                entity.HasKey(e => e.UnitId);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100).HasColumnType("nvarchar(100)");
+                entity.Property(e => e.Type).IsRequired().HasMaxLength(20);
+            });
+
+            modelBuilder.Entity<Supplier>(entity =>
+            {
+                entity.HasKey(e => e.SupplierId);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+                entity.Property(e => e.ContactPerson)
+                    .HasMaxLength(256);
+
+                entity.Property(e => e.PhoneNumber)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(256);
+
+                entity.Property(e => e.AddressLine1)
+                    .IsRequired()
+                    .HasMaxLength(512);
+
+                entity.Property(e => e.AddressLine2)
+                    .HasMaxLength(512);
+
+                entity.Property(e => e.City)
+                    .HasMaxLength(128);
+
+                entity.Property(e => e.State)
+                    .HasMaxLength(128);
+
+                entity.Property(e => e.ZipCode)
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.Country)
+                    .HasMaxLength(128);
+
+                entity.Property(e => e.PAN)
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.GSTNumber)
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.TIN)
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.Notes)
+                    .HasMaxLength(1024);
+
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+            });
 
 
             base.OnModelCreating(modelBuilder);

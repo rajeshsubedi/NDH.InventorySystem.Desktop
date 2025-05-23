@@ -26,11 +26,15 @@ namespace InventoryManagementSystemUI
             services.AddScoped<IUserAuthenticationRepo, UserAuthenticationRepo>();
             services.AddScoped<IHomeDashboardRepo, HomeDashboardRepo>();
             services.AddScoped<IAddItemCategoryRepo, AddItemCategoryRepo>();
+            services.AddScoped<IStockManagementRepo, StockManagementRepo>();
+
 
 
             services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             services.AddScoped<IHomeDashboardService, HomeDashboardService>();
             services.AddScoped<IAddItemCategoryService, AddItemCategoryService>();
+            services.AddScoped<IStockManagementService, StockManagementService>();
+
 
 
             services.AddScoped<IEmailService, EmailService>();
