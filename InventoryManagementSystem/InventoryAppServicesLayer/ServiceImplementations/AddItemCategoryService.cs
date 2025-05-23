@@ -24,6 +24,11 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Category name cannot be empty.", nameof(name));
 
+            // Check for duplicate parent category name (only for Level 1)
+            var existingCategory = await _repository.GetCategoryByNameAndLevelAsync(name, 1);
+            if (existingCategory != null)
+                throw new InvalidOperationException($"A parent category with the name '{name}' already exists.");
+
             var newCategory = new Category
             {
                 Name = name,
@@ -36,6 +41,7 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             await _repository.AddCategoryAsync(newCategory);
         }
 
+
         // Add a subcategory under a specific parent
         public async Task AddSubCategoryAsync(int parentCategoryId, string name)
         {
@@ -46,17 +52,27 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             if (parent == null)
                 throw new InvalidOperationException("Parent category not found.");
 
+            // Enforce 4 level limit (PCG > SCG > CAT > CHC)
+            if (parent.Level >= 4)
+                throw new InvalidOperationException("You cannot add a subcategory beyond level 4.");
+
+            // Check for duplicate subcategory name within the parent
+            if (parent.SubCategories.Any(sub => sub.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException($"A subcategory with the name '{name}' already exists under '{parent.Name}'.");
+
             var subCategory = new Category
             {
                 Name = name,
                 Abbreviation = GenerateAbbreviation(name),
                 Level = parent.Level + 1,
-                ParentCategoryId = parent.CategoryId,
+                ParentCategoryId = parent.CategoryId, // Set ParentCategoryId correctly
                 CreatedAt = DateTime.UtcNow
             };
 
             await _repository.AddCategoryAsync(subCategory);
         }
+
+
 
         // Generate a 3-letter abbreviation from the name
         private string GenerateAbbreviation(string name)
@@ -70,6 +86,29 @@ namespace InventoryAppServicesLayer.ServiceImplementations
         public async Task<List<Category>> GetAllCategoriesAsync()
         {
             return await _repository.GetAllCategoriesAsync();
+        }
+
+        public async Task EditCategoryAsync(int categoryId, string newName)
+        {
+            var category = await _repository.GetCategoryByIdAsync(categoryId);
+            if (category == null)
+                throw new InvalidOperationException("Category not found.");
+
+            category.Name = newName;
+            category.Abbreviation = GenerateAbbreviation(newName);
+            await _repository.UpdateCategoryAsync(category);
+        }
+
+        public async Task DeleteCategoryAsync(int categoryId)
+        {
+            var category = await _repository.GetCategoryByIdAsync(categoryId);
+            if (category == null)
+                throw new InvalidOperationException("Category not found.");
+
+            if (category.SubCategories.Any())
+                throw new InvalidOperationException("Cannot delete a category with subcategories.");
+
+            await _repository.DeleteCategoryAsync(category);
         }
     }
 }

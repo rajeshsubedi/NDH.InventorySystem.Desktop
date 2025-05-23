@@ -25,13 +25,32 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
 
-            // Make sure that Category name is not empty before saving
-            if (string.IsNullOrEmpty(category.Name))
-                throw new ArgumentException("Category name cannot be empty.", nameof(category));
+            // Ensure that if ParentCategoryId is set, the parent exists
+            if (category.ParentCategoryId.HasValue)
+            {
+                var parent = await _rmsServicedb.Categories.FindAsync(category.ParentCategoryId);
+                if (parent == null)
+                    throw new InvalidOperationException("Parent category not found.");
+
+                // Ensure the parent is not a new root category
+                if (parent.Level == 0)
+                    throw new InvalidOperationException("Cannot add a subcategory to a root category.");
+            }
 
             _rmsServicedb.Categories.Add(category);
             await _rmsServicedb.SaveChangesAsync();
         }
+
+        // Repository Method for Getting Category by Name and Level
+        // Repository Method for Getting Category by Name and Level
+        public async Task<Category> GetCategoryByNameAndLevelAsync(string name, int level)
+        {
+            return await _rmsServicedb.Categories
+                .Where(c => EF.Functions.Collate(c.Name, "SQL_Latin1_General_CP1_CI_AS") == name && c.Level == level)
+                .FirstOrDefaultAsync();
+        }
+
+
 
         // Add SubCategory Method
         public async Task AddSubCategoryAsync(int parentCategoryId, string subCategoryName)
@@ -73,6 +92,20 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             return await _rmsServicedb.Categories
                 .Include(c => c.SubCategories)
                 .ToListAsync();
+        }
+
+
+
+        public async Task UpdateCategoryAsync(Category category)
+        {
+            _rmsServicedb.Categories.Update(category);
+            await _rmsServicedb.SaveChangesAsync();
+        }
+
+        public async Task DeleteCategoryAsync(Category category)
+        {
+            _rmsServicedb.Categories.Remove(category);
+            await _rmsServicedb.SaveChangesAsync();
         }
     }
 }

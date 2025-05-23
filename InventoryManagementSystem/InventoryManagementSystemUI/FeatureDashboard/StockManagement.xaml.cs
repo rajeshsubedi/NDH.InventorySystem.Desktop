@@ -1,25 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using InventoryAppDomainLayer.DataModels.HomeDashboardModels;
 using InventoryAppServicesLayer.ServiceInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InventoryManagementSystemUI.FeatureDashboard
 {
-    public partial class AddNewItemDashboard : UserControl
+    public partial class StockManagement : UserControl
     {
         private readonly ObservableCollection<Category> _categories = new();
         public ObservableCollection<Category> FilteredCategories => _categories;
+        public ObservableCollection<UnitDetail> PrimaryUnits { get; set; } = new();
+        public ObservableCollection<UnitDetail> SecondaryUnits { get; set; } = new();
+        public ObservableCollection<Supplier> Suppliers { get; set; } = new();
 
         private readonly IAddItemCategoryService _categoryService;
+        private readonly IStockManagementService     _stockService;
         private StackPanel _previousActionIcons = null;
         private Category _selectedCategory;
+        public string SelectedPrimaryUnit { get; set; }
+        public string SelectedSecondaryUnit { get; set; }
+        public string SelectedSupplier { get; set; }
         public Category SelectedCategory
         {
             get => _selectedCategory;
@@ -29,14 +32,18 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 SelectedCategoryTextBlock.Text = _selectedCategory?.DisplayName ?? string.Empty;
             }
         }
-
-        public AddNewItemDashboard()
+        public StockManagement()
         {
             InitializeComponent();
             _categoryService = App.ServiceProvider.GetRequiredService<IAddItemCategoryService>();
+            _stockService = App.ServiceProvider.GetRequiredService<IStockManagementService>();
             this.DataContext = this;
-
-            _ = LoadCategoriesAsync();
+            Loaded += StockManagement_Loaded;
+        }
+        private async void StockManagement_Loaded(object sender, RoutedEventArgs e)
+        {
+            await LoadCategoriesAsync();              // ✅ Runs first
+            await LoadUnitsAndSuppliersAsync();       // ✅ Runs only after first completes
         }
 
         private async Task LoadCategoriesAsync()
@@ -53,6 +60,93 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 _categories.Add(parent);
             }
         }
+
+        private async Task LoadUnitsAndSuppliersAsync()
+        {
+            try
+            {
+                // Load Primary Units
+                var primary = await _stockService.GetUnitsByTypeAsync("Primary");
+                PrimaryUnits.Clear();
+                foreach (var unit in primary)
+                    PrimaryUnits.Add(unit);
+
+                // Load Secondary Units (only AFTER primary units are done)
+                var secondary = await _stockService.GetUnitsByTypeAsync("Secondary");
+                SecondaryUnits.Clear();
+                foreach (var unit in secondary)
+                    SecondaryUnits.Add(unit);
+
+                // Load Suppliers (only AFTER secondary units are done)
+                var suppliers = await _stockService.GetAllAsync();
+                Suppliers.Clear();
+                foreach (var supplier in suppliers)
+                    Suppliers.Add(supplier);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading units or suppliers: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private async void AddPurchase_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string quantityText = PurchaseQuantityTextBox?.Text?.Trim();
+                string supplier = SelectedSupplier?.Trim();
+                DateTime? purchaseDate = PurchaseDatePicker?.SelectedDate;
+
+                if (string.IsNullOrWhiteSpace(quantityText) || !int.TryParse(quantityText, out int quantity) || quantity <= 0)
+                {
+                    MessageBox.Show("Please enter a valid purchase quantity.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(supplier))
+                {
+                    MessageBox.Show("Please enter the supplier name.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (purchaseDate == null)
+                {
+                    MessageBox.Show("Please select a purchase date.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                var item = new StockItem
+                {
+                    ItemName = ItemNameTextBox.Text?.Trim(),
+                    Category = SelectedCategoryTextBlock.Text?.Trim(),
+                    PurchaseQuantity = quantity,
+                    PrimaryUnit = SelectedPrimaryUnit,
+                    SecondaryUnit = SelectedSecondaryUnit,
+                    ConversionRate = decimal.TryParse(ConversionRateTextBox.Text, out var rate) ? rate : 0,
+                    PurchasePrice = decimal.TryParse(PurchasePriceTextBox.Text, out var price) ? price : 0,
+                    PurchaseDate = purchaseDate.Value,
+                    Supplier = supplier
+                };
+
+
+                await _stockService.AddPurchaseAsync(item);
+
+                MessageBox.Show("Stock purchase added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Reset form
+                PrimaryUnitComboBox.SelectedIndex = -1;
+                SecondaryUnitComboBox.SelectedIndex = -1;
+                SupplierComboBox.SelectedIndex = -1;
+                SelectedPrimaryUnit = null;
+                SelectedSecondaryUnit = null;
+                SelectedSupplier = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         private void Category_Clicked(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -207,93 +301,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             }
         }
 
-        private void AddItem_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // Basic Details
-                string itemName = ItemNameTextBox?.Text?.Trim() ?? "";
-                string category = SelectedCategoryTextBlock?.Text?.Trim() ?? "";
-                bool isProduct = (FindName("ItemType_Product") as RadioButton)?.IsChecked == true;
-                bool isService = (FindName("ItemType_Service") as RadioButton)?.IsChecked == true;
-
-                // Stock Details
-                string openingStockText = OpeningStockTextBox?.Text?.Trim() ?? "";
-                string unit = UnitComboBox?.Text ?? "";
-                string salesPriceText = SalesPriceTextBox?.Text?.Trim() ?? "";
-                bool lowStockAlert = LowStockAlertToggle?.IsChecked == true;
-
-                // Additional Details
-                string itemCode = ItemCodeTextBox?.Text?.Trim() ?? "";
-                string hsCode = HSCodeTextBox?.Text?.Trim() ?? "";
-                string description = DescriptionTextBox?.Text?.Trim() ?? "";
-
-               
-
-                // Basic Validation
-                if (string.IsNullOrEmpty(itemName))
-                {
-                    MessageBox.Show("Please enter an item name.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(category))
-                {
-                    MessageBox.Show("Please select a category.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                //if (!isProduct && !isService)
-                //{
-                //    MessageBox.Show("Please select an item type (Product or Service).", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //    return;
-                //}
-
-                // Stock Details Validation (Optional for Service)
-                if (isProduct)
-                {
-                    if (string.IsNullOrEmpty(openingStockText) || !int.TryParse(openingStockText, out int openingStock) || openingStock < 0)
-                    {
-                        MessageBox.Show("Please enter a valid opening stock (positive number).", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
-                    if (string.IsNullOrEmpty(unit))
-                    {
-                        MessageBox.Show("Please select a unit for stock.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
-                    if (!string.IsNullOrEmpty(salesPriceText) && !decimal.TryParse(salesPriceText, out decimal salesPrice))
-                    {
-                        MessageBox.Show("Sales Price must be a valid number.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-
-
-                }
-
-                // Display Success Message
-                MessageBox.Show($"Item '{itemName}' added successfully!\nCategory: {category}\nType: {(isProduct ? "Product" : "Service")}",
-                                "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Clear Form Fields
-                ItemNameTextBox.Text = "";
-                SelectedCategoryTextBlock.Text = "";
-                OpeningStockTextBox.Text = "";
-                UnitComboBox.SelectedIndex = 0;
-                SalesPriceTextBox.Text = "";
-                ItemCodeTextBox.Text = "";
-                HSCodeTextBox.Text = "";
-                DescriptionTextBox.Text = "";
-                LowStockAlertToggle.IsChecked = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
+     
         private void CategorySearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string searchText = CategorySearchBox.Text.ToLower().Trim();
@@ -323,6 +331,47 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             //CategorySearchBox.Text = string.Empty;
         }
-      
+
+        private async void AddPrimaryUnit_Click(object sender, RoutedEventArgs e)
+        {
+            string unitName = Microsoft.VisualBasic.Interaction.InputBox("Enter new primary unit:", "Add Unit");
+            if (!string.IsNullOrWhiteSpace(unitName))
+            {
+                await _stockService.AddUnitAsync(unitName.Trim(), "Primary");
+                await LoadUnitsAndSuppliersAsync();
+                MessageBox.Show("Unit added successfully!");
+            }
+        }
+
+        private async void AddSecondaryUnit_Click(object sender, RoutedEventArgs e)
+        {
+            string unitName = Microsoft.VisualBasic.Interaction.InputBox("Enter new primary unit:", "Add Unit");
+            if (!string.IsNullOrWhiteSpace(unitName))
+            {
+                await _stockService.AddUnitAsync(unitName.Trim(), "Secondary");
+                await LoadUnitsAndSuppliersAsync();
+                MessageBox.Show("Unit added successfully!");
+            }
+        }
+
+        private async void DeletePrimaryUnit_Click(object sender, RoutedEventArgs e)
+        {
+            string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Unit ID to delete:", "Delete Unit");
+            if (int.TryParse(input, out int id))
+            {
+                var result = MessageBox.Show($"Are you sure you want to delete unit with ID {id}?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    await _stockService.DeleteUnitAsync(id);
+                    await LoadUnitsAndSuppliersAsync();
+                    MessageBox.Show("Unit deleted successfully!");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please enter a valid numeric ID.");
+            }
+        }
+
     }
-    }
+}
