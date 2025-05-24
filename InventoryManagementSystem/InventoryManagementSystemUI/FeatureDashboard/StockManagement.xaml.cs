@@ -415,6 +415,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 Suppliers.Add(newSupplier);
                 SelectedSupplier = newSupplier;
             }
+            MessageBox.Show($"Supplier added successfully!");
         }
 
 
