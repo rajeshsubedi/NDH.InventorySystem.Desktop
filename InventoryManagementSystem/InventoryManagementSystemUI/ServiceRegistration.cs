@@ -11,6 +11,7 @@ using InventoryAppDataAccessLayer.Repositories.RepoInterfaces;
 using InventoryAppServicesLayer.AuthorizationFilter;
 using InventoryAppServicesLayer.ServiceImplementations;
 using InventoryAppServicesLayer.ServiceInterfaces;
+using InventoryManagementSystemUI.FeatureDashboard;
 using InventoryManagementSystemUI.HomeDashboard;
 using InventoryManagementSystemUI.Login;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ namespace InventoryManagementSystemUI
 
 
 
+
             services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             services.AddScoped<IHomeDashboardService, HomeDashboardService>();
             services.AddScoped<IAddItemCategoryService, AddItemCategoryService>();
@@ -45,6 +47,10 @@ namespace InventoryManagementSystemUI
             // Register the LoginDashboard window
             services.AddSingleton<LoginDashboard>();
             services.AddSingleton<HomeDashboardWindow>();
+            services.AddSingleton<AddSupplierWindow>();
+            services.AddSingleton<AddUnitDialog>();
+
+
 
 
 

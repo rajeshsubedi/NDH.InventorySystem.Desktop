@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using InventoryAppDomainLayer.DataModels.HomeDashboardModels;
 using InventoryAppServicesLayer.ServiceInterfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,9 +21,12 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         private readonly IStockManagementService     _stockService;
         private StackPanel _previousActionIcons = null;
         private Category _selectedCategory;
-        public string SelectedPrimaryUnit { get; set; }
-        public string SelectedSecondaryUnit { get; set; }
-        public string SelectedSupplier { get; set; }
+
+        private bool _suppressDropDownOnce = false;
+
+        public UnitDetail SelectedPrimaryUnit { get; set; }
+        public UnitDetail SelectedSecondaryUnit { get; set; }
+        public Supplier SelectedSupplier { get; set; }
         public Category SelectedCategory
         {
             get => _selectedCategory;
@@ -95,7 +99,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             try
             {
                 string quantityText = PurchaseQuantityTextBox?.Text?.Trim();
-                string supplier = SelectedSupplier?.Trim();
+                string supplier = SelectedSupplier?.Name?.Trim();
                 DateTime? purchaseDate = PurchaseDatePicker?.SelectedDate;
 
                 if (string.IsNullOrWhiteSpace(quantityText) || !int.TryParse(quantityText, out int quantity) || quantity <= 0)
@@ -120,13 +124,14 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                     ItemName = ItemNameTextBox.Text?.Trim(),
                     Category = SelectedCategoryTextBlock.Text?.Trim(),
                     PurchaseQuantity = quantity,
-                    PrimaryUnit = SelectedPrimaryUnit,
-                    SecondaryUnit = SelectedSecondaryUnit,
+                    PrimaryUnit = SelectedPrimaryUnit?.Name,
+                    SecondaryUnit = SelectedSecondaryUnit?.Name,
                     ConversionRate = decimal.TryParse(ConversionRateTextBox.Text, out var rate) ? rate : 0,
                     PurchasePrice = decimal.TryParse(PurchasePriceTextBox.Text, out var price) ? price : 0,
                     PurchaseDate = purchaseDate.Value,
-                    Supplier = supplier
+                    Supplier = SelectedSupplier?.Name?.Trim()
                 };
+
 
 
                 await _stockService.AddPurchaseAsync(item);
@@ -134,9 +139,9 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 MessageBox.Show("Stock purchase added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 // Reset form
-                PrimaryUnitComboBox.SelectedIndex = -1;
-                SecondaryUnitComboBox.SelectedIndex = -1;
-                SupplierComboBox.SelectedIndex = -1;
+                //PrimaryUnitComboBox.SelectedIndex = -1;
+                //SecondaryUnitComboBox.SelectedIndex = -1;
+                //SupplierComboBox.SelectedIndex = -1;
                 SelectedPrimaryUnit = null;
                 SelectedSecondaryUnit = null;
                 SelectedSupplier = null;
@@ -334,10 +339,17 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private async void AddPrimaryUnit_Click(object sender, RoutedEventArgs e)
         {
-            string unitName = Microsoft.VisualBasic.Interaction.InputBox("Enter new primary unit:", "Add Unit");
-            if (!string.IsNullOrWhiteSpace(unitName))
+            var dialog = new AddUnitDialog
             {
-                await _stockService.AddUnitAsync(unitName.Trim(), "Primary");
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                // ✅ Don't redeclare — just assign
+               var unitName = dialog.UnitName;
+
+                await _stockService.AddUnitAsync(unitName, "Primary");
                 await LoadUnitsAndSuppliersAsync();
                 MessageBox.Show("Unit added successfully!");
             }
@@ -345,14 +357,42 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private async void AddSecondaryUnit_Click(object sender, RoutedEventArgs e)
         {
-            string unitName = Microsoft.VisualBasic.Interaction.InputBox("Enter new primary unit:", "Add Unit");
-            if (!string.IsNullOrWhiteSpace(unitName))
+            var dialog = new AddUnitDialog
             {
-                await _stockService.AddUnitAsync(unitName.Trim(), "Secondary");
+                Owner = Window.GetWindow(this),
+                 UnitType = "Secondary"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                string unitName = dialog.UnitName;
+                string unitType = dialog.UnitType;
+
+                await _stockService.AddUnitAsync(unitName, unitType);
                 await LoadUnitsAndSuppliersAsync();
-                MessageBox.Show("Unit added successfully!");
+                MessageBox.Show($"{unitType} unit added successfully!");
             }
         }
+        private async void AddSupplier_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new AddSupplierWindow
+            {
+                Owner = Window.GetWindow(this) // UserControl safe
+            };
+
+            var result = dialog.ShowDialog();
+            if (result == true)
+            {
+                var newSupplier = dialog.NewSupplier;
+
+                Suppliers.Add(newSupplier);
+                SelectedSupplier = newSupplier;
+            }
+        }
+
+
+
+
 
         private async void DeletePrimaryUnit_Click(object sender, RoutedEventArgs e)
         {
@@ -372,6 +412,79 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 MessageBox.Show("Please enter a valid numeric ID.");
             }
         }
+
+        private void OpenSupplierDialog_Click(object sender, RoutedEventArgs e)
+        {
+            //var dialog = new SupplierSelectionDialog(Suppliers.ToList());
+            //if (dialog.ShowDialog() == true)
+            //{
+            //    SelectedSupplier = dialog.SelectedSupplier;
+            //}
+        }
+
+        private void OpenSecondaryUnitDialog_Click(object sender, RoutedEventArgs e)
+        {
+            //var dialog = new UnitSelectionDialog(SecondaryUnits.ToList());
+            //if (dialog.ShowDialog() == true)
+            //{
+            //    SelectedSecondaryUnit = dialog.SelectedUnit;
+            //}
+        }
+        private void OpenPrimaryUnitDialog_Click(object sender, RoutedEventArgs e)
+        {
+            //var dialog = new UnitSelectionDialog(PrimaryUnits.ToList());
+            //if (dialog.ShowDialog() == true)
+            //{
+            //    SelectedPrimaryUnit = dialog.SelectedUnit;
+            //}
+        }
+
+
+
+        private void PrimaryUnitComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                e.Handled = true;
+                comboBox.Focus();
+
+                // Open dropdown after UI is ready
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    comboBox.IsDropDownOpen = true;
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        private void SecondaryUnitComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                e.Handled = true;
+                comboBox.Focus();
+
+                // Open dropdown after UI is ready
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    comboBox.IsDropDownOpen = true;
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        private void SupplierComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                e.Handled = true;
+                comboBox.Focus();
+
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    comboBox.IsDropDownOpen = true;
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
 
     }
 }

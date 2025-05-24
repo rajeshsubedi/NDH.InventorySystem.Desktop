@@ -1,0 +1,237 @@
+﻿<Window x:Class="InventoryManagementSystemUI.FeatureDashboard.AddSupplierWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:InventoryManagementSystemUI.FeatureDashboard"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:packIcon="http://materialdesigninxaml.net/winfx/xaml/shared"
+        mc:Ignorable="d"
+        Title="Add New Supplier" Height="600" Width="650"
+        WindowStartupLocation="CenterScreen"
+        Background="White">
+
+    <!-- ✅ Include Material Design Themes and Primary Colors -->
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Light theme (Material Design) -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+
+                <!-- ✅ ONLY Primary (Accent files removed to avoid errors) -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- ✅ Optional: Manual Accent Override (Lime) -->
+            <SolidColorBrush x:Key="SecondaryHueMidBrush" Color="#FFCDDC39" />
+            <SolidColorBrush x:Key="SecondaryHueMidForegroundBrush" Color="Black" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20" VerticalAlignment="Top">
+            <TextBlock Text="Add New Supplier"
+                   FontSize="26"
+                   FontWeight="Bold"
+                   Margin="0 0 0 20"
+                   Foreground="{DynamicResource PrimaryHueMidBrush}" />
+
+            <!-- BASIC INFO CARD -->
+            <!-- BASIC INFO CARD -->
+            <Border Background="{DynamicResource MaterialDesignCardBackground}"
+        CornerRadius="10"
+        Padding="20"
+        Margin="0 0 0 20"
+        Effect="{DynamicResource MaterialDesignElevation3}">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Left Column Labels + Inputs -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0 4 10 16">
+                        <TextBlock Text="Supplier Name" FontWeight="SemiBold" Margin="0 0 0 4"/>
+                        <TextBox x:Name="NameTextBox"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                            Height="36"
+                             Padding="4"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 4 10 16">
+                        <TextBlock Text="Phone Number" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="PhoneTextBox"
+                                Height="36"
+                                Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="0 4 10 16">
+                        <TextBlock Text="Address Line 1" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="Address1TextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Grid.Column="0" Margin="0 4 10 16">
+                        <TextBlock Text="City" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="CityTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4" Grid.Column="0" Margin="0 4 10 16">
+                        <TextBlock Text="Zip Code" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="ZipCodeTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <!-- Right Column Labels + Inputs -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="10 4 0 16">
+                        <TextBlock Text="Contact Person" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="ContactPersonTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="10 4 0 16">
+                        <TextBlock Text="Email" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="EmailTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="1" Margin="10 4 0 16">
+                        <TextBlock Text="Address Line 2" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="Address2TextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Grid.Column="1" Margin="10 4 0 16">
+                        <TextBlock Text="State" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="StateTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4" Grid.Column="1" Margin="10 4 0 16">
+                        <TextBlock Text="Country" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="CountryTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- TAX CARD -->
+            <Border Background="{DynamicResource MaterialDesignCardBackground}"
+        CornerRadius="10"
+        Padding="20"
+        Margin="0 0 0 20"
+        Effect="{DynamicResource MaterialDesignElevation3}">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- PAN -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0 0 10 16">
+                        <TextBlock Text="PAN" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="PanTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}" />
+                    </StackPanel>
+
+                    <!-- GST -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="10 0 0 16">
+                        <TextBlock Text="GST Number" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="GstTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}" />
+                    </StackPanel>
+
+                    <!-- TIN -->
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0 0 0 0">
+                        <TextBlock Text="TIN" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBox x:Name="TinTextBox"
+                     Height="32"
+                                  Padding="4"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- NOTES CARD -->
+            <Border Background="{DynamicResource MaterialDesignCardBackground}"
+        CornerRadius="10"
+        Padding="20"
+        Margin="0 0 0 20"
+        Effect="{DynamicResource MaterialDesignElevation3}">
+                <StackPanel>
+                    <TextBlock Text="Notes" FontWeight="SemiBold" Margin="0 0 0 4"/>
+                    <TextBox x:Name="NotesTextBox"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Auto"
+                 Height="100"
+                 TextWrapping="Wrap"
+                 Margin="0"
+                 />
+                </StackPanel>
+            </Border>
+
+            <!-- BUTTONS -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 20 0 0">
+                <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                    Height="48" Width="180"
+                    Click="AddSupplier_Click" 
+                        Background="#10B981"
+                        Foreground="White">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="AccountPlus" Margin="0 0 8 0"/>
+                        <TextBlock Text="Add Supplier"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Margin="60 0 0 0"
+                    Height="48" Width="120"
+                    Background="#f44336"
+                    Foreground="White"
+                    Click="Cancel_Click">
+                    <TextBlock Text="Cancel"/>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+
+
+</Window>

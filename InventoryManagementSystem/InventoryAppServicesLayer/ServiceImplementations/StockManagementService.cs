@@ -52,11 +52,12 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             return await _stockRepository.GetAllSuppliersAsync();
         }
 
-        public async Task AddAsync(string name)
+        public async Task<bool> AddSupplierAsync(Supplier supplier)
         {
-            var supplier = new Supplier { Name = name };
-            await _stockRepository.AddSupplierAsync(supplier);
+
+            return await _stockRepository.AddSupplierAsync(supplier);
         }
+
 
         public async Task EditAsync(int id, string newName)
         {

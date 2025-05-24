@@ -61,12 +61,19 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             return await _context.Suppliers.ToListAsync();
         }
 
-        public async Task AddSupplierAsync(Supplier supplier)
+        public async Task<bool> AddSupplierAsync(Supplier supplier)
         {
+            // Check if a supplier with the same name exists (case-insensitive)
+            bool exists = await _context.Suppliers
+                .AnyAsync(s => s.Name.ToLower() == supplier.Name.ToLower());
+
+            if (exists)
+                return false;
+
             _context.Suppliers.Add(supplier);
             await _context.SaveChangesAsync();
+            return true;
         }
-
         public async Task EditSupplierAsync(Supplier supplier)
         {
             _context.Suppliers.Update(supplier);
