@@ -92,7 +92,7 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="4" Grid.Column="0" Margin="0 4 10 16">
-                        <TextBlock Text="Zip Code" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBlock Text="Zip Code ( Optional )" FontWeight="SemiBold" Margin="0 0 0 2"/>
                         <TextBox x:Name="ZipCodeTextBox"
                      Height="32"
                                   Padding="4"
@@ -109,7 +109,7 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="10 4 0 16">
-                        <TextBlock Text="Email" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBlock Text="Email ( Optional )" FontWeight="SemiBold" Margin="0 0 0 2"/>
                         <TextBox x:Name="EmailTextBox"
                      Height="32"
                                   Padding="4"
@@ -117,7 +117,7 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="2" Grid.Column="1" Margin="10 4 0 16">
-                        <TextBlock Text="Address Line 2" FontWeight="SemiBold" Margin="0 0 0 2"/>
+                        <TextBlock Text="Address Line 2 ( Optional )" FontWeight="SemiBold" Margin="0 0 0 2"/>
                         <TextBox x:Name="Address2TextBox"
                      Height="32"
                                   Padding="4"
@@ -196,7 +196,7 @@
         Margin="0 0 0 20"
         Effect="{DynamicResource MaterialDesignElevation3}">
                 <StackPanel>
-                    <TextBlock Text="Notes" FontWeight="SemiBold" Margin="0 0 0 4"/>
+                    <TextBlock Text="Notes ( Optional )" FontWeight="SemiBold" Margin="0 0 0 4"/>
                     <TextBox x:Name="NotesTextBox"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
                  AcceptsReturn="True"

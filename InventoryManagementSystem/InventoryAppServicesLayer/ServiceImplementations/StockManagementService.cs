@@ -23,6 +23,16 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             await _stockRepository.AddAsync(item);
         }
 
+        public async Task<List<StockItem>> GetAllStockItemsAsync()
+        {
+            return await _stockRepository.GetAllStockItemsAsync();
+        }
+
+        public async Task<List<string>> GetAllItemNamesAsync()
+        {
+            return await _stockRepository.GetAllItemNamesAsync();
+        }
+
         // Unit Methods
         public async Task<List<UnitDetail>> GetUnitsByTypeAsync(string type)
         {

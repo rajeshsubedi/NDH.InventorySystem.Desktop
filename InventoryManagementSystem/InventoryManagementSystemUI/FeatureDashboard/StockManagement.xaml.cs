@@ -16,6 +16,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         public ObservableCollection<UnitDetail> PrimaryUnits { get; set; } = new();
         public ObservableCollection<UnitDetail> SecondaryUnits { get; set; } = new();
         public ObservableCollection<Supplier> Suppliers { get; set; } = new();
+        public ObservableCollection<string> StockItemNames { get; set; } = new();
 
         private readonly IAddItemCategoryService _categoryService;
         private readonly IStockManagementService     _stockService;
@@ -48,6 +49,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             await LoadCategoriesAsync();              // ✅ Runs first
             await LoadUnitsAndSuppliersAsync();       // ✅ Runs only after first completes
+            await LoadItemNamesAsync(); // ✅ load items
         }
 
         private async Task LoadCategoriesAsync()
@@ -93,7 +95,23 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             }
         }
 
+        private async Task LoadItemNamesAsync()
+        {
+            try
+            {
+                var items = await _stockService.GetAllStockItemsAsync(); // Adjust service name
+                StockItemNames.Clear();
 
+                foreach (var item in items.Select(i => i.ItemName).Distinct())
+                {
+                    StockItemNames.Add(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading items: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         private async void AddPurchase_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -121,7 +139,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 }
                 var item = new StockItem
                 {
-                    ItemName = ItemNameTextBox.Text?.Trim(),
+                    ItemName = ItemNameComboBox.Text?.Trim(),
                     Category = SelectedCategoryTextBlock.Text?.Trim(),
                     PurchaseQuantity = quantity,
                     PrimaryUnit = SelectedPrimaryUnit?.Name,
@@ -138,13 +156,22 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
                 MessageBox.Show("Stock purchase added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Reset form
-                //PrimaryUnitComboBox.SelectedIndex = -1;
-                //SecondaryUnitComboBox.SelectedIndex = -1;
-                //SupplierComboBox.SelectedIndex = -1;
+                // ✅ Reset form fields
+                ItemNameComboBox.Text = string.Empty;
+                SelectedCategoryTextBlock.Text = string.Empty;
+                PurchaseQuantityTextBox.Text = string.Empty;
+                PrimaryUnitComboBox.SelectedItem = null;
+                SecondaryUnitComboBox.SelectedItem = null;
+                ConversionRateTextBox.Text = string.Empty;
+                PurchasePriceTextBox.Text = string.Empty;
+                PurchaseDatePicker.SelectedDate = null;
+                SupplierComboBox.SelectedItem = null;
+
+                // Also reset bound properties if needed
                 SelectedPrimaryUnit = null;
                 SelectedSecondaryUnit = null;
                 SelectedSupplier = null;
+                SelectedCategory = null;
             }
             catch (Exception ex)
             {
@@ -413,34 +440,8 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             }
         }
 
-        private void OpenSupplierDialog_Click(object sender, RoutedEventArgs e)
-        {
-            //var dialog = new SupplierSelectionDialog(Suppliers.ToList());
-            //if (dialog.ShowDialog() == true)
-            //{
-            //    SelectedSupplier = dialog.SelectedSupplier;
-            //}
-        }
 
-        private void OpenSecondaryUnitDialog_Click(object sender, RoutedEventArgs e)
-        {
-            //var dialog = new UnitSelectionDialog(SecondaryUnits.ToList());
-            //if (dialog.ShowDialog() == true)
-            //{
-            //    SelectedSecondaryUnit = dialog.SelectedUnit;
-            //}
-        }
-        private void OpenPrimaryUnitDialog_Click(object sender, RoutedEventArgs e)
-        {
-            //var dialog = new UnitSelectionDialog(PrimaryUnits.ToList());
-            //if (dialog.ShowDialog() == true)
-            //{
-            //    SelectedPrimaryUnit = dialog.SelectedUnit;
-            //}
-        }
-
-
-
+        // For Primary Unit Box
         private void PrimaryUnitComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
@@ -455,7 +456,22 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
-
+        private void PrimaryUnitComboBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+        private void PrimaryUnitComboBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+       
+        // For Secondary Unit Box
         private void SecondaryUnitComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
@@ -470,7 +486,22 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
-
+        private void SecondaryUnitComboBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+        private void SecondaryUnitComboBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+       
+        // For Supplier Box
         private void SupplierComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
@@ -484,7 +515,50 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
+        private void SupplierComboBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+        private void SupplierComboBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+      
+        // For Item Box
+        private void ItemNameComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                e.Handled = true;
+                comboBox.Focus();
 
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    comboBox.IsDropDownOpen = true;
+                }), System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        private void ItemNameComboBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+        private void ItemNameComboBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && !comboBox.IsDropDownOpen)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
 
     }
 }

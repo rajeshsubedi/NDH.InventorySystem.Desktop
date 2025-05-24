@@ -25,6 +25,18 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<StockItem>> GetAllStockItemsAsync()
+        {
+            return await _context.StockItems.ToListAsync();
+        }
+        public async Task<List<string>> GetAllItemNamesAsync()
+        {
+            return await _context.StockItems
+                                 .Select(i => i.ItemName)
+                                 .Distinct()
+                                 .ToListAsync();
+        }
+
         // Unit
         public async Task<List<UnitDetail>> GetUnitsByTypeAsync(string type)
         {
