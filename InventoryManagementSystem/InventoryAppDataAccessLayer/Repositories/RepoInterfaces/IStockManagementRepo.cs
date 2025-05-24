@@ -19,7 +19,7 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoInterfaces
 
         // Supplier
         Task<List<Supplier>> GetAllSuppliersAsync();
-        Task AddSupplierAsync(Supplier supplier);
+        Task<bool> AddSupplierAsync(Supplier supplier);
         Task EditSupplierAsync(Supplier supplier);
         Task DeleteSupplierAsync(int id);
     }

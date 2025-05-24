@@ -19,7 +19,7 @@ namespace InventoryAppServicesLayer.ServiceInterfaces
 
         //for supplier
         Task<List<Supplier>> GetAllAsync();
-        Task AddAsync(string name);
+        Task<bool> AddSupplierAsync(Supplier supplier);
         Task EditAsync(int id, string newName);
         Task DeleteAsync(int id);
     }
