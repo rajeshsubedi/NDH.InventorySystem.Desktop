@@ -25,13 +25,13 @@
 
                 <!-- Add New Parent Category Button (NEW) -->
                 <Button x:Name="AddParentCategoryButton" 
-          Content="➕ Add New Parent Category" 
-          Background="#10B981" 
-          Foreground="White" 
-          FontWeight="Bold" 
-          Padding="10" 
-          Margin="0,0,0,10" 
-          Click="AddParentCategory_Click"/>
+                          Content="➕ Add New Parent Category" 
+                          Background="#10B981" 
+                          Foreground="White" 
+                          FontWeight="Bold" 
+                          Padding="10" 
+                          Margin="0,0,0,10" 
+                          Click="AddParentCategory_Click"/>
 
                 <Grid Margin="0,0,0,10">
                     <xctk:WatermarkTextBox x:Name="CategorySearchBox" 
@@ -41,45 +41,45 @@
                              TextChanged="CategorySearchBox_TextChanged" 
                              Padding="10,5" />
                     <Button Content="❌" 
-              Width="24" 
-              Height="20" 
-              Background="Transparent" 
-              BorderThickness="0" 
-              HorizontalAlignment="Right" 
-              VerticalAlignment="Center" 
-              Margin="0,0,10,0" 
-              Cursor="Hand" 
-              Click="ClearSearch_Click"/>
+                            Width="24" 
+                            Height="20" 
+                            Background="Transparent" 
+                            BorderThickness="0" 
+                            HorizontalAlignment="Right" 
+                            VerticalAlignment="Center" 
+                            Margin="0,0,10,0" 
+                            Cursor="Hand" 
+                            Click="ClearSearch_Click"/>
                 </Grid>
 
                 <TreeView x:Name="CategoryTreeView" ItemsSource="{Binding FilteredCategories}" 
-            SelectedItemChanged="CategoryTreeView_SelectedItemChanged"
-            ScrollViewer.VerticalScrollBarVisibility="Auto" 
-            ScrollViewer.CanContentScroll="True" Height="300">
-                    <TreeView.Resources>
-                        <Style TargetType="TreeViewItem">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="Black"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#E0F7FA"/>
-                                    <Setter Property="Foreground" Value="#00796B"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TreeView.Resources>
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding SubCategories}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" MouseLeftButtonDown="Category_Clicked">
-                                <TextBlock Text="{Binding DisplayName}" FontSize="16"/>
-                                <StackPanel Orientation="Horizontal" Margin="10,0,0,0" x:Name="ActionIcons" Visibility="Collapsed">
-                                    <Button Content="✏️" Click="EditCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
-                                    <Button Content="➕" Click="AddSubCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
-                                    <Button Content="🗑️" Click="DeleteCategory_Click" Background="Transparent" Foreground="#FF6347" BorderThickness="0" Width="24"/>
+                            SelectedItemChanged="CategoryTreeView_SelectedItemChanged"
+                            ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                            ScrollViewer.CanContentScroll="True" Height="300">
+                        <TreeView.Resources>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E0F7FA"/>
+                                        <Setter Property="Foreground" Value="#00796B"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TreeView.Resources>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding SubCategories}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" MouseLeftButtonDown="Category_Clicked">
+                                    <TextBlock Text="{Binding DisplayName}" FontSize="16"/>
+                                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" x:Name="ActionIcons" Visibility="Collapsed">
+                                        <Button Content="✏️" Click="EditCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
+                                        <Button Content="➕" Click="AddSubCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
+                                        <Button Content="🗑️" Click="DeleteCategory_Click" Background="Transparent" Foreground="#FF6347" BorderThickness="0" Width="24"/>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
                 </TreeView>
 
                 <!-- Information Section for Category Levels -->
@@ -106,7 +106,7 @@
 
                     <TextBlock Text=" Selected Category:" FontWeight="SemiBold" FontSize="20" Margin="0,0,0,15"/>
                     <xctk:WatermarkTextBox x:Name="SelectedCategoryTextBlock" Text="{Binding SelectedCategory.DisplayName, Mode=OneWay}" Height="40" IsReadOnly="True" Background="#F0F0F0" Margin="0,0,0,10"/>
-                
+
                     <TextBlock Text="Item Name" FontWeight="SemiBold" FontSize="14" Padding="0,10,0,0"/>
                     <xctk:WatermarkTextBox x:Name="ItemNameTextBox" Watermark="Enter Item Name" Height="40" Margin="0,10,0,15"/>
 
@@ -129,24 +129,24 @@
                                 </Grid.ColumnDefinitions>
 
                                 <ComboBox x:Name="PrimaryUnitComboBox"
-              Grid.Column="0"
-              Height="40"
-              ItemsSource="{Binding PrimaryUnits}"
-              DisplayMemberPath="Name"
-              SelectedItem="{Binding SelectedPrimaryUnit, Mode=TwoWay}"
-              IsEditable="True"
-              IsTextSearchEnabled="True"
-              StaysOpenOnEdit="True"
-              PreviewMouseLeftButtonDown="PrimaryUnitComboBox_PreviewMouseLeftButtonDown" />
+                                  Grid.Column="0"
+                                  Height="40"
+                                  ItemsSource="{Binding PrimaryUnits}"
+                                  DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedPrimaryUnit, Mode=TwoWay}"
+                                  IsEditable="True"
+                                  IsTextSearchEnabled="True"
+                                  StaysOpenOnEdit="True"
+                                  PreviewMouseLeftButtonDown="PrimaryUnitComboBox_PreviewMouseLeftButtonDown" />
 
                                 <Button Content=" + Add"
-            Grid.Column="1"
-            Width="60"
-            Height="40"
+                                        Grid.Column="1"
+                                        Width="60"
+                                        Height="40"
                                         Background="#10B981" 
                                         Foreground="White"
-            Margin="10,0,0,0"
-            Click="AddPrimaryUnit_Click"/>
+                                        Margin="10,0,0,0"
+                                        Click="AddPrimaryUnit_Click"/>
                             </Grid>
 
 
@@ -164,24 +164,24 @@
                                 </Grid.ColumnDefinitions>
 
                                 <ComboBox x:Name="SecondaryUnitComboBox"
-              Grid.Column="0"
-              Height="40"
-              ItemsSource="{Binding SecondaryUnits}"
-              DisplayMemberPath="Name"
-              SelectedItem="{Binding SelectedSecondaryUnit, Mode=TwoWay}"
-              IsEditable="True"
-              IsTextSearchEnabled="True"
-              StaysOpenOnEdit="True"
-              PreviewMouseLeftButtonDown="SecondaryUnitComboBox_PreviewMouseLeftButtonDown"/>
+                                          Grid.Column="0"
+                                          Height="40"
+                                          ItemsSource="{Binding SecondaryUnits}"
+                                          DisplayMemberPath="Name"
+                                          SelectedItem="{Binding SelectedSecondaryUnit, Mode=TwoWay}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          StaysOpenOnEdit="True"
+                                          PreviewMouseLeftButtonDown="SecondaryUnitComboBox_PreviewMouseLeftButtonDown"/>
 
                                 <Button Content=" + Add"
-            Grid.Column="1"
-            Width="60"
-            Height="40"
+                                        Grid.Column="1"
+                                        Width="60"
+                                        Height="40"
                                         Background="#10B981" 
                                         Foreground="White"
-            Margin="10,0,0,0"
-            Click="AddSecondaryUnit_Click"/>
+                                        Margin="10,0,0,0"
+                                        Click="AddSecondaryUnit_Click"/>
                             </Grid>
 
 
@@ -201,30 +201,27 @@
                                 </Grid.ColumnDefinitions>
 
                                 <ComboBox x:Name="SupplierComboBox"
-              Grid.Column="0"
-              Height="40"
-              ItemsSource="{Binding Suppliers}"
-              DisplayMemberPath="Name"
-              SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
-              IsEditable="True"
-              IsTextSearchEnabled="True"
-              StaysOpenOnEdit="True"
-              PreviewMouseLeftButtonDown="SupplierComboBox_PreviewMouseLeftButtonDown"/>
+                                          Grid.Column="0"
+                                          Height="40"
+                                          ItemsSource="{Binding Suppliers}"
+                                          DisplayMemberPath="Name"
+                                          SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          StaysOpenOnEdit="True"
+                                          PreviewMouseLeftButtonDown="SupplierComboBox_PreviewMouseLeftButtonDown"/>
 
                                 <Button Content=" +  Add"
-            Grid.Column="1"
-            Width="60"
-            Height="40"
+                                        Grid.Column="1"
+                                        Width="60"
+                                        Height="40"
                                         Background="#10B981"
                                         Foreground="White"
-            Margin="10,0,0,0"
-            Click="AddSupplier_Click"/>
+                                        Margin="10,0,0,0"
+                                        Click="AddSupplier_Click"/>
                             </Grid>
-
-
                         </StackPanel>
                     </Grid>
-
                     <Button x:Name="AddPurchaseButton" Content="➕ Add Purchase" Height="45" Background="#10B981" Foreground="White" FontWeight="Bold" Padding="10" Cursor="Hand" HorizontalAlignment="Center" Width="250" Click="AddPurchase_Click"/>
                 </StackPanel>
             </ScrollViewer>
