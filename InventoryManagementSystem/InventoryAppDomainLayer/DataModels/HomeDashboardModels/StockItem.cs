@@ -18,6 +18,8 @@ namespace InventoryAppDomainLayer.DataModels.HomeDashboardModels
         public decimal PurchasePrice { get; set; }
         public DateTime PurchaseDate { get; set; }
         public string Supplier { get; set; }
+        public DateTime LastModified { get; set; } = DateTime.UtcNow;
+
     }
     public class Supplier
     {

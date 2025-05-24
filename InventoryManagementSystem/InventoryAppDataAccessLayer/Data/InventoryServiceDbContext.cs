@@ -119,6 +119,11 @@ namespace InventoryAppDataAccessLayer.Data
                 entity.Property(e => e.Supplier)
                     .HasMaxLength(256)
                     .HasColumnType("nvarchar(256)");
+
+                entity.Property(e => e.LastModified)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETUTCDATE()")
+                .ValueGeneratedOnAddOrUpdate(); // Optional
             });
 
 
