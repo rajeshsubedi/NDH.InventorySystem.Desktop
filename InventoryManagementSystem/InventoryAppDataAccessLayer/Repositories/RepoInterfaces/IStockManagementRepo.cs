@@ -10,7 +10,8 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoInterfaces
     public interface IStockManagementRepo
     {
         Task AddAsync(StockItem item);
-
+        Task<List<StockItem>> GetAllStockItemsAsync();
+        Task<List<string>> GetAllItemNamesAsync();
         // Unit
         Task<List<UnitDetail>> GetUnitsByTypeAsync(string type);
         Task AddUnitAsync(UnitDetail unit);
