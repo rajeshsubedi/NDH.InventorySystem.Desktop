@@ -20,7 +20,7 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
         }
 
         // Add Category Method
-        public async Task AddCategoryAsync(Category category)
+        public async Task AddCategoryAsync(ProductCategory category)
         {
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
@@ -28,7 +28,7 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             // Ensure that if ParentCategoryId is set, the parent exists
             if (category.ParentCategoryId.HasValue)
             {
-                var parent = await _rmsServicedb.Categories.FindAsync(category.ParentCategoryId);
+                var parent = await _rmsServicedb.ProductCategory.FindAsync(category.ParentCategoryId);
                 if (parent == null)
                     throw new InvalidOperationException("Parent category not found.");
 
@@ -37,15 +37,15 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
                     throw new InvalidOperationException("Cannot add a subcategory to a root category.");
             }
 
-            _rmsServicedb.Categories.Add(category);
+            _rmsServicedb.ProductCategory.Add(category);
             await _rmsServicedb.SaveChangesAsync();
         }
 
         // Repository Method for Getting Category by Name and Level
         // Repository Method for Getting Category by Name and Level
-        public async Task<Category> GetCategoryByNameAndLevelAsync(string name, int level)
+        public async Task<ProductCategory> GetCategoryByNameAndLevelAsync(string name, int level)
         {
-            return await _rmsServicedb.Categories
+            return await _rmsServicedb.ProductCategory
                 .Where(c => EF.Functions.Collate(c.Name, "SQL_Latin1_General_CP1_CI_AS") == name && c.Level == level)
                 .FirstOrDefaultAsync();
         }
@@ -59,7 +59,7 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
                 throw new ArgumentException("Subcategory name cannot be empty.", nameof(subCategoryName));
 
             // Ensure the parent category exists
-            var parentCategory = await _rmsServicedb.Categories
+            var parentCategory = await _rmsServicedb.ProductCategory
                 .FirstOrDefaultAsync(c => c.CategoryId == parentCategoryId);
 
             if (parentCategory == null)
@@ -68,7 +68,7 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             }
 
             // Create and add the subcategory
-            var subCategory = new Category
+            var subCategory = new ProductCategory
             {
                 Name = subCategoryName,
                 Level = parentCategory.Level + 1, // Subcategories are at a higher level
@@ -76,35 +76,35 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
                 CreatedAt = DateTime.UtcNow // Set the creation date
             };
 
-            _rmsServicedb.Categories.Add(subCategory);
+            _rmsServicedb.ProductCategory.Add(subCategory);
             await _rmsServicedb.SaveChangesAsync();
         }
 
         // Get Category By Id
-        public async Task<Category?> GetCategoryByIdAsync(int categoryId)
+        public async Task<ProductCategory?> GetCategoryByIdAsync(int categoryId)
         {
-            return await _rmsServicedb.Categories
+            return await _rmsServicedb.ProductCategory
                 .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
 
-        public async Task<List<Category>> GetAllCategoriesAsync()
+        public async Task<List<ProductCategory>> GetAllCategoriesAsync()
         {
-            return await _rmsServicedb.Categories
+            return await _rmsServicedb.ProductCategory
                 .Include(c => c.SubCategories)
                 .ToListAsync();
         }
 
 
 
-        public async Task UpdateCategoryAsync(Category category)
+        public async Task UpdateCategoryAsync(ProductCategory category)
         {
-            _rmsServicedb.Categories.Update(category);
+            _rmsServicedb.ProductCategory.Update(category);
             await _rmsServicedb.SaveChangesAsync();
         }
 
-        public async Task DeleteCategoryAsync(Category category)
+        public async Task DeleteCategoryAsync(ProductCategory category)
         {
-            _rmsServicedb.Categories.Remove(category);
+            _rmsServicedb.ProductCategory.Remove(category);
             await _rmsServicedb.SaveChangesAsync();
         }
     }

@@ -9,12 +9,12 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoInterfaces
 {
     public interface IAddItemCategoryRepo
     {
-        Task AddCategoryAsync(Category category);
-        Task<Category> GetCategoryByNameAndLevelAsync(string name, int level);
+        Task AddCategoryAsync(ProductCategory category);
+        Task<ProductCategory> GetCategoryByNameAndLevelAsync(string name, int level);
         Task AddSubCategoryAsync(int parentCategoryId, string subCategoryName);
-        Task<Category?> GetCategoryByIdAsync(int id);
-        Task<List<Category>> GetAllCategoriesAsync();
-        Task UpdateCategoryAsync(Category category);
-        Task DeleteCategoryAsync(Category category);
+        Task<ProductCategory?> GetCategoryByIdAsync(int id);
+        Task<List<ProductCategory>> GetAllCategoriesAsync();
+        Task UpdateCategoryAsync(ProductCategory category);
+        Task DeleteCategoryAsync(ProductCategory category);
     }
 }

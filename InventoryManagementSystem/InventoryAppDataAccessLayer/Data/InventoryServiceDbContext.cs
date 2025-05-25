@@ -13,8 +13,8 @@ namespace InventoryAppDataAccessLayer.Data
     {
         public DbSet<UserRegistrationDetails> UserRegistration { get; set; }
         public DbSet<DashboardFeaturePanel> FeaturePanels { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<StockItem> StockItems { get; set; }
+        public DbSet<ProductCategory> ProductCategory { get; set; }
+        public DbSet<StockPurchases> StockPurchases { get; set; }
         public DbSet<UnitDetail> UnitDetails { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
 
@@ -82,7 +82,7 @@ namespace InventoryAppDataAccessLayer.Data
                 entity.Property(e => e.FeatureViewKey).IsRequired().HasMaxLength(256).HasColumnType("nvarchar(256)");
             });
 
-            modelBuilder.Entity<StockItem>(entity =>
+            modelBuilder.Entity<StockPurchases>(entity =>
             {
                 entity.HasKey(e => e.Id);
 
@@ -95,6 +95,14 @@ namespace InventoryAppDataAccessLayer.Data
                     .IsRequired()
                     .HasMaxLength(256)
                     .HasColumnType("nvarchar(256)");
+
+                entity.Property(e => e.CategoryLevel)
+                  .IsRequired()
+                  .HasColumnType("int");
+
+                entity.Property(e => e.CategoryLevelAbbv)
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
 
                 entity.Property(e => e.PurchaseQuantity)
                     .IsRequired();
@@ -127,9 +135,8 @@ namespace InventoryAppDataAccessLayer.Data
             });
 
 
-            modelBuilder.Entity<Category>(entity =>
+            modelBuilder.Entity<ProductCategory>(entity =>
             {
-                entity.ToTable("Categories"); // Table name
 
                 // Primary Key
                 entity.HasKey(e => e.CategoryId);
@@ -152,6 +159,10 @@ namespace InventoryAppDataAccessLayer.Data
                 entity.Property(e => e.Level)
                       .IsRequired()
                       .HasColumnType("int");
+
+                entity.Property(e => e.LevelAbbreviation)
+                     .HasMaxLength(20)
+                     .HasColumnType("nvarchar(20)");
 
                 entity.Property(e => e.ParentCategoryId)
                       .HasColumnType("int")
@@ -232,8 +243,8 @@ namespace InventoryAppDataAccessLayer.Data
 
 
             base.OnModelCreating(modelBuilder);
-            var initializer = new DbInitializer(modelBuilder);
-            initializer.Seed();
+            //var initializer = new DbInitializer(modelBuilder);
+            //initializer.Seed();
         }
 
     }

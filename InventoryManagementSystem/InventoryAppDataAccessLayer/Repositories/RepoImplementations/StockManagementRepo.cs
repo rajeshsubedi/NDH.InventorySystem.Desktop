@@ -19,19 +19,19 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
             _context = context;
         }
 
-        public async Task AddAsync(StockItem item)
+        public async Task AddAsync(StockPurchases item)
         {
-            _context.StockItems.Add(item);
+            _context.StockPurchases.Add(item);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<StockItem>> GetAllStockItemsAsync()
+        public async Task<List<StockPurchases>> GetAllStockItemsAsync()
         {
-            return await _context.StockItems.ToListAsync();
+            return await _context.StockPurchases.ToListAsync();
         }
         public async Task<List<string>> GetAllItemNamesAsync()
         {
-            return await _context.StockItems
+            return await _context.StockPurchases
                                  .Select(i => i.ItemName)
                                  .Distinct()
                                  .ToListAsync();

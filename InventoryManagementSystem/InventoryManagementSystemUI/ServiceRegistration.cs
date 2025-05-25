@@ -11,7 +11,7 @@ using InventoryAppDataAccessLayer.Repositories.RepoInterfaces;
 using InventoryAppServicesLayer.AuthorizationFilter;
 using InventoryAppServicesLayer.ServiceImplementations;
 using InventoryAppServicesLayer.ServiceInterfaces;
-using InventoryManagementSystemUI.FeatureDashboard;
+using InventoryManagementSystemUI.FeatureDashboard.StockManagement;
 using InventoryManagementSystemUI.HomeDashboard;
 using InventoryManagementSystemUI.Login;
 using Microsoft.EntityFrameworkCore;

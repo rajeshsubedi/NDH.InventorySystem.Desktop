@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace InventoryManagementSystemUI.FeatureDashboard
+namespace InventoryManagementSystemUI.FeatureDashboard.Dashboard
 {
     /// <summary>
     /// Interaction logic for Dashboard.xaml

@@ -11,7 +11,7 @@ namespace InventoryAppServicesLayer.ServiceInterfaces
     {
         Task AddParentCategoryAsync(string name);
         Task AddSubCategoryAsync(int parentCategoryId, string name);
-        Task<List<Category>> GetAllCategoriesAsync();
+        Task<List<ProductCategory>> GetAllCategoriesAsync();
         Task EditCategoryAsync(int categoryId, string newName);
         Task DeleteCategoryAsync(int categoryId);
     }

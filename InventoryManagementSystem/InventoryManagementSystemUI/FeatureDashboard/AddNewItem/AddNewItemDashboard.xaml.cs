@@ -2,25 +2,35 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using InventoryAppDomainLayer.DataModels.HomeDashboardModels;
 using InventoryAppServicesLayer.ServiceInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InventoryManagementSystemUI.FeatureDashboard
+namespace InventoryManagementSystemUI.FeatureDashboard.AddNewItem
 {
+    /// <summary>
+    /// Interaction logic for AddNewItemDashboard.xaml
+    /// </summary>
     public partial class AddNewItemDashboard : UserControl
     {
-        private readonly ObservableCollection<Category> _categories = new();
-        public ObservableCollection<Category> FilteredCategories => _categories;
+        private readonly ObservableCollection<ProductCategory> _categories = new();
+        public ObservableCollection<ProductCategory> FilteredCategories => _categories;
 
         private readonly IAddItemCategoryService _categoryService;
         private StackPanel _previousActionIcons = null;
-        private Category _selectedCategory;
-        public Category SelectedCategory
+        private ProductCategory _selectedCategory;
+        public ProductCategory SelectedCategory
         {
             get => _selectedCategory;
             set
@@ -101,7 +111,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             try
             {
-                if (CategoryTreeView.SelectedItem is Category selectedCategory)
+                if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
                 {
                     var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayName}':");
                     if (!string.IsNullOrWhiteSpace(subCategoryName))
@@ -131,7 +141,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private async void EditCategory_Click(object sender, RoutedEventArgs e)
         {
-            if (CategoryTreeView.SelectedItem is Category selectedCategory)
+            if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
                 var newName = PromptForName($"Enter new name for '{selectedCategory.DisplayName}':");
                 if (!string.IsNullOrWhiteSpace(newName))
@@ -165,7 +175,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private async void DeleteCategory_Click(object sender, RoutedEventArgs e)
         {
-            if (CategoryTreeView.SelectedItem is Category selectedCategory)
+            if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
                 var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayName}'?",
                                               "Delete Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -201,7 +211,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private void CategoryTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (CategoryTreeView.SelectedItem is Category selectedCategory)
+            if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
                 SelectedCategory = selectedCategory;
             }
@@ -228,7 +238,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 string hsCode = HSCodeTextBox?.Text?.Trim() ?? "";
                 string description = DescriptionTextBox?.Text?.Trim() ?? "";
 
-               
+
 
                 // Basic Validation
                 if (string.IsNullOrEmpty(itemName))
@@ -323,6 +333,8 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             //CategorySearchBox.Text = string.Empty;
         }
-      
+
     }
-    }
+
+
+}

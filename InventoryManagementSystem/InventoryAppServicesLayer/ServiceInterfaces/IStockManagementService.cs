@@ -9,8 +9,8 @@ namespace InventoryAppServicesLayer.ServiceInterfaces
 {
     public interface IStockManagementService
     {
-        Task AddPurchaseAsync(StockItem item);
-        Task<List<StockItem>> GetAllStockItemsAsync();
+        Task AddPurchaseAsync(StockPurchases item);
+        Task<List<StockPurchases>> GetAllStockItemsAsync();
         Task<List<string>> GetAllItemNamesAsync();
 
         //for unitDetail

@@ -18,12 +18,12 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             _stockRepository = stockRepository;
         }
 
-        public async Task AddPurchaseAsync(StockItem item)
+        public async Task AddPurchaseAsync(StockPurchases item)
         {
             await _stockRepository.AddAsync(item);
         }
 
-        public async Task<List<StockItem>> GetAllStockItemsAsync()
+        public async Task<List<StockPurchases>> GetAllStockItemsAsync()
         {
             return await _stockRepository.GetAllStockItemsAsync();
         }

@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace InventoryAppDomainLayer.DataModels.HomeDashboardModels
 {
-    public class StockItem
+    public class StockPurchases
     {
         public int Id { get; set; }
         public string ItemName { get; set; }
         public string Category { get; set; } // Could be a foreign key reference if you have Category table
+
+        public int CategoryLevel { get; set; }
+        public string CategoryLevelAbbv { get; set; }
+
         public int PurchaseQuantity { get; set; }
         public string PrimaryUnit { get; set; }
         public string SecondaryUnit { get; set; }

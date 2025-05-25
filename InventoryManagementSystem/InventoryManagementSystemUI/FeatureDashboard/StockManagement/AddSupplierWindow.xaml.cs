@@ -15,7 +15,7 @@ using InventoryAppDomainLayer.DataModels.HomeDashboardModels;
 using InventoryAppServicesLayer.ServiceInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InventoryManagementSystemUI.FeatureDashboard
+namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
 {
     /// <summary>
     /// Interaction logic for AddSupplierWindow.xaml

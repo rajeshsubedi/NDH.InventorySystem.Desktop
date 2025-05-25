@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace InventoryManagementSystemUI.FeatureDashboard
+namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
 {
     /// <summary>
     /// Interaction logic for AddUnitDialog.xaml
@@ -46,6 +46,5 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             Close();
         }
     }
-
 
 }

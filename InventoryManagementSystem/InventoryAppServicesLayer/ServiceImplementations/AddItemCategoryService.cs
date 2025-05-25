@@ -29,11 +29,12 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             if (existingCategory != null)
                 throw new InvalidOperationException($"A parent category with the name '{name}' already exists.");
 
-            var newCategory = new Category
+            var newCategory = new ProductCategory
             {
                 Name = name,
                 Abbreviation = GenerateAbbreviation(name),
                 Level = 1,
+                LevelAbbreviation = GetLevelAbbreviation(1),
                 ParentCategoryId = null,
                 CreatedAt = DateTime.UtcNow
             };
@@ -41,6 +42,18 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             await _repository.AddCategoryAsync(newCategory);
         }
 
+        private string GetLevelAbbreviation(int level)
+        {
+            return level switch
+            {
+                1 => "PCG",
+                2 => "SCG",
+                3 => "CAT",
+                4 => "CHC",
+                5 => "SCC",
+                _ => $"LVL{level}"
+            };
+        }
 
         // Add a subcategory under a specific parent
         public async Task AddSubCategoryAsync(int parentCategoryId, string name)
@@ -60,11 +73,12 @@ namespace InventoryAppServicesLayer.ServiceImplementations
             if (parent.SubCategories.Any(sub => sub.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException($"A subcategory with the name '{name}' already exists under '{parent.Name}'.");
 
-            var subCategory = new Category
+            var subCategory = new ProductCategory
             {
                 Name = name,
                 Abbreviation = GenerateAbbreviation(name),
                 Level = parent.Level + 1,
+                LevelAbbreviation = GetLevelAbbreviation(parent.Level + 1),
                 ParentCategoryId = parent.CategoryId, // Set ParentCategoryId correctly
                 CreatedAt = DateTime.UtcNow
             };
@@ -83,7 +97,7 @@ namespace InventoryAppServicesLayer.ServiceImplementations
                 .ToArray())
                 .ToUpper();
         }
-        public async Task<List<Category>> GetAllCategoriesAsync()
+        public async Task<List<ProductCategory>> GetAllCategoriesAsync()
         {
             return await _repository.GetAllCategoriesAsync();
         }

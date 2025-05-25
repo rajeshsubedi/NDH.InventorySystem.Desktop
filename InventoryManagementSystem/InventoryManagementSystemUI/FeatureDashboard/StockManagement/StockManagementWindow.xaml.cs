@@ -1,34 +1,47 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using InventoryAppDomainLayer.DataModels.HomeDashboardModels;
 using InventoryAppServicesLayer.ServiceInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InventoryManagementSystemUI.FeatureDashboard
+namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
 {
-    public partial class StockManagement : UserControl
+    /// <summary>
+    /// Interaction logic for StockManagementWindow.xaml
+    /// </summary>
+    public partial class StockManagementWindow : UserControl
     {
-        private readonly ObservableCollection<Category> _categories = new();
-        public ObservableCollection<Category> FilteredCategories => _categories;
+        private readonly ObservableCollection<ProductCategory> _categories = new();
+        public ObservableCollection<ProductCategory> FilteredCategories => _categories;
         public ObservableCollection<UnitDetail> PrimaryUnits { get; set; } = new();
         public ObservableCollection<UnitDetail> SecondaryUnits { get; set; } = new();
         public ObservableCollection<Supplier> Suppliers { get; set; } = new();
         public ObservableCollection<string> StockItemNames { get; set; } = new();
 
         private readonly IAddItemCategoryService _categoryService;
-        private readonly IStockManagementService     _stockService;
+        private readonly IStockManagementService _stockService;
         private StackPanel _previousActionIcons = null;
-        private Category _selectedCategory;
+        private ProductCategory _selectedCategory;
 
         private bool _suppressDropDownOnce = false;
 
         public UnitDetail SelectedPrimaryUnit { get; set; }
         public UnitDetail SelectedSecondaryUnit { get; set; }
         public Supplier SelectedSupplier { get; set; }
-        public Category SelectedCategory
+        public ProductCategory SelectedCategory
         {
             get => _selectedCategory;
             set
@@ -37,7 +50,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 SelectedCategoryTextBlock.Text = _selectedCategory?.DisplayName ?? string.Empty;
             }
         }
-        public StockManagement()
+        public StockManagementWindow()
         {
             InitializeComponent();
             _categoryService = App.ServiceProvider.GetRequiredService<IAddItemCategoryService>();
@@ -45,6 +58,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             this.DataContext = this;
             Loaded += StockManagement_Loaded;
         }
+
         private async void StockManagement_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadCategoriesAsync();              // ✅ Runs first
@@ -137,17 +151,24 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                     MessageBox.Show("Please select a purchase date.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                var item = new StockItem
+                if (SelectedCategory == null)
                 {
-                    ItemName = ItemNameComboBox.Text?.Trim(),
-                    Category = SelectedCategoryTextBlock.Text?.Trim(),
+                    MessageBox.Show("Please select a category.");
+                    return;
+                }
+                var item = new StockPurchases
+                {
+                    ItemName = ItemNameComboBox.Text.Trim(),
+                    Category = SelectedCategory.Name,
+                    CategoryLevel = SelectedCategory.Level, // now safe // Store as string or int (adjust DB model if needed)
+                    CategoryLevelAbbv = SelectedCategory.LevelAbbreviation, // New property in DB
                     PurchaseQuantity = quantity,
-                    PrimaryUnit = SelectedPrimaryUnit?.Name,
-                    SecondaryUnit = SelectedSecondaryUnit?.Name,
+                    PrimaryUnit = SelectedPrimaryUnit.Name,
+                    SecondaryUnit = SelectedSecondaryUnit.Name,
                     ConversionRate = decimal.TryParse(ConversionRateTextBox.Text, out var rate) ? rate : 0,
                     PurchasePrice = decimal.TryParse(PurchasePriceTextBox.Text, out var price) ? price : 0,
                     PurchaseDate = purchaseDate.Value,
-                    Supplier = SelectedSupplier?.Name?.Trim()
+                    Supplier = SelectedSupplier?.Name.Trim()
                 };
 
 
@@ -227,7 +248,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         {
             try
             {
-                if (CategoryTreeView.SelectedItem is Category selectedCategory)
+                if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
                 {
                     var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayName}':");
                     if (!string.IsNullOrWhiteSpace(subCategoryName))
@@ -257,7 +278,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private async void EditCategory_Click(object sender, RoutedEventArgs e)
         {
-            if (CategoryTreeView.SelectedItem is Category selectedCategory)
+            if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
                 var newName = PromptForName($"Enter new name for '{selectedCategory.DisplayName}':");
                 if (!string.IsNullOrWhiteSpace(newName))
@@ -291,7 +312,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private async void DeleteCategory_Click(object sender, RoutedEventArgs e)
         {
-            if (CategoryTreeView.SelectedItem is Category selectedCategory)
+            if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
                 var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayName}'?",
                                               "Delete Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -327,13 +348,13 @@ namespace InventoryManagementSystemUI.FeatureDashboard
 
         private void CategoryTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (CategoryTreeView.SelectedItem is Category selectedCategory)
+            if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
                 SelectedCategory = selectedCategory;
             }
         }
 
-     
+
         private void CategorySearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string searchText = CategorySearchBox.Text.ToLower().Trim();
@@ -359,11 +380,6 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             CategorySearchBox.Text = string.Empty;
         }
 
-        private void AddItemImage_Click(object sender, RoutedEventArgs e)
-        {
-            //CategorySearchBox.Text = string.Empty;
-        }
-
         private async void AddPrimaryUnit_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new AddUnitDialog
@@ -374,7 +390,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             if (dialog.ShowDialog() == true)
             {
                 // ✅ Don't redeclare — just assign
-               var unitName = dialog.UnitName;
+                var unitName = dialog.UnitName;
 
                 await _stockService.AddUnitAsync(unitName, "Primary");
                 await LoadUnitsAndSuppliersAsync();
@@ -387,7 +403,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
             var dialog = new AddUnitDialog
             {
                 Owner = Window.GetWindow(this),
-                 UnitType = "Secondary"
+                UnitType = "Secondary"
             };
 
             if (dialog.ShowDialog() == true)
@@ -442,6 +458,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
         }
 
 
+
         // For Primary Unit Box
         private void PrimaryUnitComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -471,7 +488,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 comboBox.IsDropDownOpen = true;
             }
         }
-       
+
         // For Secondary Unit Box
         private void SecondaryUnitComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -501,7 +518,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 comboBox.IsDropDownOpen = true;
             }
         }
-       
+
         // For Supplier Box
         private void SupplierComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -530,7 +547,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 comboBox.IsDropDownOpen = true;
             }
         }
-      
+
         // For Item Box
         private void ItemNameComboBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -560,6 +577,5 @@ namespace InventoryManagementSystemUI.FeatureDashboard
                 comboBox.IsDropDownOpen = true;
             }
         }
-
     }
 }

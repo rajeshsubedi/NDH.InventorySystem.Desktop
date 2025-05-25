@@ -19,8 +19,8 @@ namespace InventoryAppDataAccessLayer.Data
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<InventoryServiceDbContext>();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var optionsBuilder = new DbContextOptionsBuilder<InventoryServiceDbContext>();
 
             optionsBuilder.UseSqlServer(connectionString);
 
