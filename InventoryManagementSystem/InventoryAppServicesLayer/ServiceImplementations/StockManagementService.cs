@@ -79,5 +79,7 @@ namespace InventoryAppServicesLayer.ServiceImplementations
         {
             await _stockRepository.DeleteSupplierAsync(id);
         }
+
+     
     }
 }

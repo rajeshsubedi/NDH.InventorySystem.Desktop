@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:InventoryManagementSystemUI.FeatureDashboard.StockManagement" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:local="clr-namespace:InventoryManagementSystemUI.FeatureDashboard.StockManagement" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:local1="clr-namespace:InventoryAppDomainLayer.DataModels.HomeDashboardModels;assembly=InventoryAppDomainLayer"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -70,16 +70,33 @@
                     </TreeView.Resources>
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding SubCategories}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" MouseLeftButtonDown="Category_Clicked">
-                                <TextBlock Text="{Binding DisplayName}" FontSize="16"/>
-                                <StackPanel Orientation="Horizontal" Margin="10,0,0,0" x:Name="ActionIcons" Visibility="Collapsed">
-                                    <Button Content="✏️" Click="EditCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
-                                    <Button Content="➕" Click="AddSubCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
-                                    <Button Content="🗑️" Click="DeleteCategory_Click" Background="Transparent" Foreground="#FF6347" BorderThickness="0" Width="24"/>
+                            <StackPanel>
+                                <!-- Category name -->
+                                <StackPanel Orientation="Horizontal" MouseLeftButtonDown="Category_Clicked">
+                                    <TextBlock Text="{Binding DisplayCategoryName}" FontSize="16" FontWeight="Bold"/>
+                                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0" x:Name="ActionIcons" Visibility="Collapsed">
+                                        <Button Content="✏️" Click="EditCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
+                                        <Button Content="➕" Click="AddSubCategory_Click" Background="Transparent" Foreground="#00BFFF" BorderThickness="0" Width="24"/>
+                                        <Button Content="🗑️" Click="DeleteCategory_Click" Background="Transparent" Foreground="#FF6347" BorderThickness="0" Width="24"/>
+                                    </StackPanel>
                                 </StackPanel>
+
+                                <!-- ITEMS inside this category -->
+                                <ItemsControl ItemsSource="{Binding StockItems}" Margin="20,5,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="• Item: " FontWeight="Bold">
+                                                <TextBlock.Inlines>
+                                                    <Run Text="{Binding ItemName}" FontStyle="Italic"/>
+                                                </TextBlock.Inlines>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
+
                 </TreeView>
 
                 <!-- Information Section for Category Levels -->
@@ -105,7 +122,7 @@
 
 
                     <TextBlock Text=" Selected Category:" FontWeight="SemiBold" FontSize="20" Margin="0,0,0,15"/>
-                    <xctk:WatermarkTextBox x:Name="SelectedCategoryTextBlock" Text="{Binding SelectedCategory.DisplayName, Mode=OneWay}" Height="40" IsReadOnly="True" Background="#F0F0F0" Margin="0,0,0,10"/>
+                    <xctk:WatermarkTextBox x:Name="SelectedCategoryTextBlock" Text="{Binding SelectedCategory.DisplayCategoryName, Mode=OneWay}" Height="40" IsReadOnly="True" Background="#F0F0F0" Margin="0,0,0,10"/>
 
                     <TextBlock Text="Item Name" FontWeight="SemiBold" FontSize="14" Padding="0,10,0,0"/>
                     <ComboBox x:Name="ItemNameComboBox"

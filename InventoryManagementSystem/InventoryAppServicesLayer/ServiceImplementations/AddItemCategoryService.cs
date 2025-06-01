@@ -124,5 +124,31 @@ namespace InventoryAppServicesLayer.ServiceImplementations
 
             await _repository.DeleteCategoryAsync(category);
         }
+
+        public async Task<List<ProductCategory>> GetCategoriesWithStockItemsAsync()
+        {
+            var categories = await _repository.GetAllCategoriesWithSubcategoriesAsync();
+            var purchases = await _repository.GetAllStockPurchasesAsync();
+
+            foreach (var category in categories)
+            {
+                AssignStockItemsRecursive(category, purchases);
+            }
+
+            return categories;
+        }
+
+        private void AssignStockItemsRecursive(ProductCategory category, List<StockPurchases> allPurchases)
+        {
+            category.StockItems = allPurchases
+                .Where(p => p.ProductCategoryId == category.CategoryId)
+                .ToList();
+
+            foreach (var sub in category.SubCategories)
+            {
+                AssignStockItemsRecursive(sub, allPurchases);
+            }
+        }
+
     }
 }

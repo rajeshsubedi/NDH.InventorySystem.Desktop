@@ -10,7 +10,9 @@ namespace InventoryAppDomainLayer.DataModels.HomeDashboardModels
     {
         public int Id { get; set; }
         public string ItemName { get; set; }
-        public string Category { get; set; } // Could be a foreign key reference if you have Category table
+        public int ProductCategoryId { get; set; }
+        public ProductCategory ProductCategory { get; set; }
+
 
         public int CategoryLevel { get; set; }
         public string CategoryLevelAbbv { get; set; }

@@ -10,21 +10,21 @@ namespace InventoryAppDomainLayer.DataModels.HomeDashboardModels
     {
         public int Id { get; set; }
         public string ItemName { get; set; }
-        public string ItemCode { get; set; } // Unique item identifier
-        public string Category { get; set; } // Consider using foreign key to a Category table
-        public string HSCode { get; set; } // For compliance, optional
+        public string ItemCode { get; set; }
+
+        public int CategoryId { get; set; } // ✅ Foreign Key
+        public ProductCategory Category { get; set; }
+
+        public string HSCode { get; set; }
         public string Description { get; set; }
-
-        public string Unit { get; set; } // Primary unit
+        public string Unit { get; set; }
         public decimal SalesPrice { get; set; }
-
-        public int OpeningStock { get; set; } // Usually from first purchase or manually added
-        public int CurrentStock { get; set; } // Updated from stock purchase/sales
-
+        public int OpeningStock { get; set; }
+        public int CurrentStock { get; set; }
         public int LowStockAlertLevel { get; set; }
         public bool LowStockAlertEnabled { get; set; }
-
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime LastModified { get; set; } = DateTime.UtcNow;
     }
+
 }

@@ -8,34 +8,19 @@ namespace InventoryAppDomainLayer.DataModels.HomeDashboardModels
 {
     public class ProductCategory
     {
-        public int CategoryId { get; set; } // Primary Key
+        public int CategoryId { get; set; }
         public string Name { get; set; }
         public string Abbreviation { get; set; }
         public int Level { get; set; }
-        public string LevelAbbreviation { get; set; } // <-- Add this field
-        public int? ParentCategoryId { get; set; } // Foreign Key to parent category
+        public string LevelAbbreviation { get; set; }
+        public int? ParentCategoryId { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        // Navigation properties
         public ProductCategory Parent { get; set; }
         public ICollection<ProductCategory> SubCategories { get; set; } = new List<ProductCategory>();
-        public string DisplayName => $"{Name} ({LevelAbbreviation})";
+        public List<StockPurchases> StockItems { get; set; } = new();
 
-        //public string DisplayName
-        //{
-        //    get
-        //    {
-        //        string levelAbbreviation = Level switch
-        //        {
-        //            1 => "PCG",
-        //            2 => "SCG",
-        //            3 => "CAT",
-        //            4 => "CHC",
-        //            5 => "SCC",
-        //            _ => $"LVL{Level}"
-        //        };
-        //        return $"{Name} ({levelAbbreviation})";
-        //    }
-        //}
+        public string DisplayCategoryName => $"{Name} ({LevelAbbreviation})";
     }
+
 }

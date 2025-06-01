@@ -14,6 +14,8 @@ namespace InventoryAppDataAccessLayer.Data
         public DbSet<UserRegistrationDetails> UserRegistration { get; set; }
         public DbSet<DashboardFeaturePanel> FeaturePanels { get; set; }
         public DbSet<ProductCategory> ProductCategory { get; set; }
+        public DbSet<InventoryItem> InventoryItem { get; set; }
+
         public DbSet<StockPurchases> StockPurchases { get; set; }
         public DbSet<UnitDetail> UnitDetails { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
@@ -86,52 +88,25 @@ namespace InventoryAppDataAccessLayer.Data
             {
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.ItemName)
-                    .IsRequired()
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                entity.Property(e => e.Category)
-                    .IsRequired()
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
-
-                entity.Property(e => e.CategoryLevel)
-                  .IsRequired()
-                  .HasColumnType("int");
-
-                entity.Property(e => e.CategoryLevelAbbv)
-                    .HasMaxLength(100)
-                    .HasColumnType("nvarchar(100)");
-
-                entity.Property(e => e.PurchaseQuantity)
-                    .IsRequired();
-
-                entity.Property(e => e.PrimaryUnit)
-                    .HasMaxLength(100)
-                    .HasColumnType("nvarchar(100)");
-
-                entity.Property(e => e.SecondaryUnit)
-                    .HasMaxLength(100)
-                    .HasColumnType("nvarchar(100)");
-
-                entity.Property(e => e.ConversionRate)
-                    .HasColumnType("decimal(18,2)");
-
-                entity.Property(e => e.PurchasePrice)
-                    .HasColumnType("decimal(18,2)");
-
-                entity.Property(e => e.PurchaseDate)
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.Supplier)
-                    .HasMaxLength(256)
-                    .HasColumnType("nvarchar(256)");
+                entity.Property(e => e.ItemName).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.CategoryLevel).HasColumnType("int");
+                entity.Property(e => e.CategoryLevelAbbv).HasMaxLength(100);
+                entity.Property(e => e.PrimaryUnit).HasMaxLength(100);
+                entity.Property(e => e.SecondaryUnit).HasMaxLength(100);
+                entity.Property(e => e.ConversionRate).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.PurchasePrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.PurchaseDate).HasColumnType("datetime");
+                entity.Property(e => e.Supplier).HasMaxLength(256);
 
                 entity.Property(e => e.LastModified)
-                .HasColumnType("datetime")
-                .HasDefaultValueSql("GETUTCDATE()")
-                .ValueGeneratedOnAddOrUpdate(); // Optional
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                // ✅ Set up FK relationship to ProductCategory
+                entity.HasOne(e => e.ProductCategory)
+                    .WithMany()
+                    .HasForeignKey(e => e.ProductCategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
 
@@ -241,10 +216,31 @@ namespace InventoryAppDataAccessLayer.Data
                     .HasDefaultValueSql("GETDATE()");
             });
 
+            modelBuilder.Entity<InventoryItem>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.ItemName).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.ItemCode).HasMaxLength(100);
+                entity.Property(e => e.Unit).HasMaxLength(100);
+                entity.Property(e => e.HSCode).HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(500);
+
+                entity.Property(e => e.SalesPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.OpeningStock).HasColumnType("int");
+                entity.Property(e => e.CurrentStock).HasColumnType("int");
+
+                entity.Property(e => e.LowStockAlertLevel).HasColumnType("int");
+                entity.Property(e => e.LowStockAlertEnabled).HasColumnType("bit");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+                entity.Property(e => e.LastModified).HasColumnType("datetime");
+
+            });
+
 
             base.OnModelCreating(modelBuilder);
-            //var initializer = new DbInitializer(modelBuilder);
-            //initializer.Seed();
+      
         }
 
     }

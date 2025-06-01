@@ -14,5 +14,7 @@ namespace InventoryAppServicesLayer.ServiceInterfaces
         Task<List<ProductCategory>> GetAllCategoriesAsync();
         Task EditCategoryAsync(int categoryId, string newName);
         Task DeleteCategoryAsync(int categoryId);
+        Task<List<ProductCategory>> GetCategoriesWithStockItemsAsync();
+
     }
 }

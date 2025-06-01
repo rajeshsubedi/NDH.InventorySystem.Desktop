@@ -87,12 +87,41 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
                 .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
 
+        //public async Task<List<ProductCategory>> GetAllCategoriesAsync()
+        //{
+        //    return await _rmsServicedb.ProductCategory
+        //        .Include(c => c.SubCategories)
+        //        .ToListAsync();
+        //}
+        //public async Task<List<ProductCategory>> GetAllCategoriesAsync()
+        //{
+        //    return await _rmsServicedb.ProductCategory
+        //        .Include(c => c.SubCategories)
+        //        .ThenInclude(sc => sc.SubCategories)
+        //        .Include(c => c.StockItems) // ✅ Eager load items
+        //        .ToListAsync();
+        //}
+
         public async Task<List<ProductCategory>> GetAllCategoriesAsync()
         {
-            return await _rmsServicedb.ProductCategory
+            var categories = await _rmsServicedb.ProductCategory
                 .Include(c => c.SubCategories)
+                .ThenInclude(sc => sc.SubCategories)
                 .ToListAsync();
+
+            var purchases = await _rmsServicedb.StockPurchases.ToListAsync();
+
+            // Attach StockPurchases manually
+            foreach (var cat in categories)
+            {
+                cat.StockItems = purchases
+                    .Where(p => p.ProductCategoryId == cat.CategoryId)
+                    .ToList();
+            }
+
+            return categories;
         }
+
 
 
 
@@ -106,6 +135,19 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoImplementations
         {
             _rmsServicedb.ProductCategory.Remove(category);
             await _rmsServicedb.SaveChangesAsync();
+        }
+
+        public async Task<List<ProductCategory>> GetAllCategoriesWithSubcategoriesAsync()
+        {
+            return await _rmsServicedb.ProductCategory
+                .Include(c => c.SubCategories)
+                .ThenInclude(sc => sc.SubCategories)
+                .ToListAsync();
+        }
+
+        public async Task<List<StockPurchases>> GetAllStockPurchasesAsync()
+        {
+            return await _rmsServicedb.StockPurchases.ToListAsync();
         }
     }
 }

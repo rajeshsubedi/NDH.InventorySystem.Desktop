@@ -47,7 +47,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
             set
             {
                 _selectedCategory = value;
-                SelectedCategoryTextBlock.Text = _selectedCategory?.DisplayName ?? string.Empty;
+                SelectedCategoryTextBlock.Text = _selectedCategory?.DisplayCategoryName ?? string.Empty;
             }
         }
         public StockManagementWindow()
@@ -61,22 +61,23 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
 
         private async void StockManagement_Loaded(object sender, RoutedEventArgs e)
         {
-            await LoadCategoriesAsync();              // ✅ Runs first
-            await LoadUnitsAndSuppliersAsync();       // ✅ Runs only after first completes
-            await LoadItemNamesAsync(); // ✅ load items
+            await InitializeStockManagementAsync();
+        }
+
+        private async Task InitializeStockManagementAsync()
+        {
+            await LoadCategoriesAsync();
+            await LoadUnitsAndSuppliersAsync();
+            await LoadItemNamesAsync();
         }
 
         private async Task LoadCategoriesAsync()
         {
-            var allCategories = await _categoryService.GetAllCategoriesAsync();
+            var allCategories = await _categoryService.GetCategoriesWithStockItemsAsync();
             _categories.Clear();
 
-            // Only load Parent Categories (Level 1 - PCG)
-            var parentCategories = allCategories.Where(c => c.Level == 1).ToList();
-
-            foreach (var parent in parentCategories)
+            foreach (var parent in allCategories.Where(c => c.ParentCategoryId == null))
             {
-                // Only add the parent categories (PCG)
                 _categories.Add(parent);
             }
         }
@@ -126,6 +127,8 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
                 MessageBox.Show($"Error loading items: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
         private async void AddPurchase_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -159,7 +162,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
                 var item = new StockPurchases
                 {
                     ItemName = ItemNameComboBox.Text.Trim(),
-                    Category = SelectedCategory.Name,
+                    ProductCategoryId = SelectedCategory.CategoryId,
                     CategoryLevel = SelectedCategory.Level, // now safe // Store as string or int (adjust DB model if needed)
                     CategoryLevelAbbv = SelectedCategory.LevelAbbreviation, // New property in DB
                     PurchaseQuantity = quantity,
@@ -177,6 +180,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
 
                 MessageBox.Show("Stock purchase added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
+                await InitializeStockManagementAsync();
                 // ✅ Reset form fields
                 ItemNameComboBox.Text = string.Empty;
                 SelectedCategoryTextBlock.Text = string.Empty;
@@ -250,7 +254,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
             {
                 if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
                 {
-                    var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayName}':");
+                    var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayCategoryName}':");
                     if (!string.IsNullOrWhiteSpace(subCategoryName))
                     {
                         await _categoryService.AddSubCategoryAsync(selectedCategory.CategoryId, subCategoryName);
@@ -280,7 +284,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
         {
             if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
-                var newName = PromptForName($"Enter new name for '{selectedCategory.DisplayName}':");
+                var newName = PromptForName($"Enter new name for '{selectedCategory.DisplayCategoryName}':");
                 if (!string.IsNullOrWhiteSpace(newName))
                 {
                     try
@@ -292,7 +296,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
                         SelectedCategory = FilteredCategories.FirstOrDefault(c => c.CategoryId == selectedCategory.CategoryId);
                         if (SelectedCategory != null)
                         {
-                            SelectedCategoryTextBlock.Text = SelectedCategory.DisplayName;
+                            SelectedCategoryTextBlock.Text = SelectedCategory.DisplayCategoryName;
                         }
                         else
                         {
@@ -314,7 +318,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
         {
             if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
-                var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayName}'?",
+                var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayCategoryName}'?",
                                               "Delete Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
@@ -368,8 +372,8 @@ namespace InventoryManagementSystemUI.FeatureDashboard.StockManagement
 
             // Filter categories based on search text
             var filtered = FilteredCategories
-                .Where(c => c.DisplayName.ToLower().Contains(searchText) ||
-                            c.SubCategories.Any(sub => sub.DisplayName.ToLower().Contains(searchText)))
+                .Where(c => c.DisplayCategoryName.ToLower().Contains(searchText) ||
+                            c.SubCategories.Any(sub => sub.DisplayCategoryName.ToLower().Contains(searchText)))
                 .ToList();
 
             CategoryTreeView.ItemsSource = filtered;

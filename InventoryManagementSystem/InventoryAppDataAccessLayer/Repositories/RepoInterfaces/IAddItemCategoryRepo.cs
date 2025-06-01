@@ -16,5 +16,7 @@ namespace InventoryAppDataAccessLayer.Repositories.RepoInterfaces
         Task<List<ProductCategory>> GetAllCategoriesAsync();
         Task UpdateCategoryAsync(ProductCategory category);
         Task DeleteCategoryAsync(ProductCategory category);
+        Task<List<ProductCategory>> GetAllCategoriesWithSubcategoriesAsync();
+        Task<List<StockPurchases>> GetAllStockPurchasesAsync();
     }
 }

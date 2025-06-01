@@ -24,5 +24,7 @@ namespace InventoryAppServicesLayer.ServiceInterfaces
         Task<bool> AddSupplierAsync(Supplier supplier);
         Task EditAsync(int id, string newName);
         Task DeleteAsync(int id);
+
+
     }
 }

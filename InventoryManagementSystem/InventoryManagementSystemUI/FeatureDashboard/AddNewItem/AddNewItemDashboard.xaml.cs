@@ -36,7 +36,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.AddNewItem
             set
             {
                 _selectedCategory = value;
-                SelectedCategoryTextBlock.Text = _selectedCategory?.DisplayName ?? string.Empty;
+                SelectedCategoryTextBlock.Text = _selectedCategory?.DisplayCategoryName ?? string.Empty;
             }
         }
 
@@ -113,7 +113,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.AddNewItem
             {
                 if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
                 {
-                    var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayName}':");
+                    var subCategoryName = PromptForName($"Enter subcategory name for '{selectedCategory.DisplayCategoryName}':");
                     if (!string.IsNullOrWhiteSpace(subCategoryName))
                     {
                         await _categoryService.AddSubCategoryAsync(selectedCategory.CategoryId, subCategoryName);
@@ -143,7 +143,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.AddNewItem
         {
             if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
-                var newName = PromptForName($"Enter new name for '{selectedCategory.DisplayName}':");
+                var newName = PromptForName($"Enter new name for '{selectedCategory.DisplayCategoryName}':");
                 if (!string.IsNullOrWhiteSpace(newName))
                 {
                     try
@@ -155,7 +155,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.AddNewItem
                         SelectedCategory = FilteredCategories.FirstOrDefault(c => c.CategoryId == selectedCategory.CategoryId);
                         if (SelectedCategory != null)
                         {
-                            SelectedCategoryTextBlock.Text = SelectedCategory.DisplayName;
+                            SelectedCategoryTextBlock.Text = SelectedCategory.DisplayCategoryName;
                         }
                         else
                         {
@@ -177,7 +177,7 @@ namespace InventoryManagementSystemUI.FeatureDashboard.AddNewItem
         {
             if (CategoryTreeView.SelectedItem is ProductCategory selectedCategory)
             {
-                var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayName}'?",
+                var result = MessageBox.Show($"Are you sure you want to delete '{selectedCategory.DisplayCategoryName}'?",
                                               "Delete Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Yes)
                 {
@@ -317,8 +317,8 @@ namespace InventoryManagementSystemUI.FeatureDashboard.AddNewItem
 
             // Filter categories based on search text
             var filtered = FilteredCategories
-                .Where(c => c.DisplayName.ToLower().Contains(searchText) ||
-                            c.SubCategories.Any(sub => sub.DisplayName.ToLower().Contains(searchText)))
+                .Where(c => c.DisplayCategoryName.ToLower().Contains(searchText) ||
+                            c.SubCategories.Any(sub => sub.DisplayCategoryName.ToLower().Contains(searchText)))
                 .ToList();
 
             CategoryTreeView.ItemsSource = filtered;
